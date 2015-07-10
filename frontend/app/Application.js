@@ -15,7 +15,8 @@ Ext.define('Receipts.Application', {
         'Ext.grid.plugin.CellEditing'
     ],
     controllers: [
-        'Login@Receipts.controller'
+        'Login@Receipts.controller',
+        'ReceiptTransferForm@Receipts.controller'
     ],
 
     stores: [
@@ -115,7 +116,8 @@ Ext.define('Receipts.Application', {
                                     ],
                                     bottomToolbar: [
                                         { name: 'remove', action:'remove' },
-                                        { name: 'send' }
+                                        { name: 'send', requireSelection:false },
+                                        { name: 'transfer' }
                                     ]
 
                                 }

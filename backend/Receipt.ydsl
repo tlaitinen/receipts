@@ -7,7 +7,30 @@ entity Receipt {
     amount Double;
     processed Bool default False;
 }
-
+route /transferreceipts {
+    post {
+        require ProcessPeriod as p where p.id = $request.processPeriodId
+            and hasReadPerm $auth.id p.id;
+        for rId in $request.receiptIdList {
+            require Receipt as r where r.id = rId 
+                and hasWritePerm $auth.id r.id;
+            -- versionId <- insert Version from {
+            --     time = now(),
+            --    userId = $auth.id
+            -- };
+            -- u <- get Receipt identified by rId;
+            -- insert Receipt from u {
+            --    activeId = rId,
+            --    activeEndTime = now(),
+            --    deletedVersionId = versionId
+            -- };
+            
+            update Receipt identified by rId with {
+                processPeriodId = $request.processPeriodId
+            };
+        };
+    }
+}
 route /receipts {
     get {
         select r.id, r.*, pf.id as previewFileId from Receipt as r

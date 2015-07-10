@@ -142,6 +142,23 @@ Ext.define('Receipts.view.main.MainController', {
                 }
 
             },
+            'receiptsgrid button[name=transfer]' : {
+                click: function(button) {
+                    if (Ext.getCmp('receipttransferform') == undefined) {
+                        var win = new Ext.Window({
+                            id: "receipttransferform",
+                            title: __('receipttransferform.title'),
+                            width:320,
+                            height:120,
+                            resizable:false,
+                            items : [{xtype: 'receipttransferform'}]
+                        });
+                        win.show();
+                        return win;
+                    } 
+                }
+            },
+
             'receiptsgrid button[name=send]': {
                 click: function(button) {
                     Ext.MessageBox.confirm(__('confirmsend.title'), __('confirmsend.message'),

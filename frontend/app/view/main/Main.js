@@ -9,7 +9,8 @@ Ext.define('Receipts.view.main.Main', {
     extend: 'Ext.container.Container',
     requires: [
         'Receipts.view.main.MainController',
-        'Receipts.view.main.ReceiptUpload'
+        'Receipts.view.main.ReceiptUpload',
+        'Receipts.view.main.ReceiptTransferForm'
     ],
 
     xtype: 'app-main',

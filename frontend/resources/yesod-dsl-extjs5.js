@@ -484,6 +484,16 @@ var yesodDsl = function(defs, __, config) {
                                         }
                                     }
                                 },
+                                listeners: {
+                                    selectionchange: function (selection, selected) {
+                                 
+                                        var grid = selection.views[0].up('grid');
+                                        grid.query('button').forEach(function (b) {
+                                            b.fireEvent('gridselectionchange', b, selected);
+                                        });
+
+                                    }
+                                },
                                 initComponent: function() {
                                     var grid = this;
                                     this.columns = _.map(gridCfg.columns, function(c) {
@@ -519,11 +529,31 @@ var yesodDsl = function(defs, __, config) {
                                         displayInfo: true,
                                         displayMsg: displayMsg,
                                         emptyMsg: __(widgetName + '.emptyPaging'),
+                                        
                                         items: ['-'].concat(_.map(gridCfg.bottomToolbar || [], function(tb) {
+                                            if (tb.action == 'new')
+                                                tb.requireSelection = false;
                                             return {
                                                 name:tb.name,
                                                 text:__(widgetName +"." + tb.name),
                                                 listeners: {
+                                                    render: function(button) {
+                                                        if (tb.requireSelection != false) {
+                                                            button.disable();
+                                                        }
+                                                      
+                                                    },
+                                                    gridselectionchange: function(button, selected) {
+
+                                                        if (tb.requireSelection != false) {
+                                                            if (selected.length == 0)
+                                                                button.disable();
+                                                            else
+                                                                button.enable();
+
+                                                        }
+                                                        
+                                                    },
                                                     click: function(button) {
                                                         if (tb.action == 'remove') {
                                                             var selected = button.up(widgetName).getSelectionModel().getSelection();
