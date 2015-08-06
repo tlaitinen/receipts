@@ -11,6 +11,11 @@ Ext.define('Receipts.controller.ReceiptTransferForm', {
                     }
                 }
             },
+            'receipttransferform button[name=no]' : {
+                click: function(button) {
+                    button.up('window').close();
+                }
+            },
             'receipttransferform button[name=yes]' : {
                 click: function(button) {
                     var receiptsGrid = Ext.ComponentQuery.query('panel[name=receipts] receiptsgrid')[0];

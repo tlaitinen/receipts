@@ -18,15 +18,17 @@ import System.Process
 import System.Exit
 import Network.HTTP.Types (status500)
 
-convert :: String -> FilePath -> FilePath -> IO (Bool, String)
+convert :: String -> FilePath -> FilePath -> IO Bool
 convert ext src dst = do
     let tmpDst = dst ++ "." ++ ext
-    (code, stdout, stderr) <- readProcessWithExitCode "convert" [src, tmpDst]  ""
+    callProcess "convert" [src, tmpDst]
     multiplePages <- doesFileExist $ dst++ "-0." ++ ext
     if multiplePages
         then renameFile (dst ++ "-0." ++ ext) dst
         else renameFile tmpDst dst
-    return (code == ExitSuccess, stdout ++ stderr)
+    resultExists <- doesFileExist dst
+            
+    return resultExists
     
 
 postUploadFilesR :: Handler Value
@@ -38,10 +40,10 @@ postUploadFilesR = do
     settings<- fmap appSettings getYesod
     let name = joinPath [appUploadDir settings,  
                          show now ++ "-" ++ T.unpack (I.fileName fi)]
+
     liftIO $ fileMove fi name
 
     size <- liftIO $ withFile name ReadMode hFileSize 
-        
         
     let fileObj = (newFile (I.fileContentType fi) 
                           (fromIntegral size)
@@ -69,11 +71,9 @@ postUploadFilesR = do
                                 userGroupContentFileContentId = Just $ previewFileId
                             }
                 let previewName = joinPath [ appUploadDir settings, show (fromSqlKey previewFileId) ]
-                (success, output) <- liftIO $ convert "jpeg" name previewName
-    
+                success <- liftIO $ convert "jpeg" name previewName
                 when (not success) $ sendResponseStatus status500 $ object [
-                        "result" .= ("failed" :: Text),
-                        "error" .= output
+                        "result" .= ("failed" :: Text)
                     ]
                     
                 size <- liftIO $ withFile previewName ReadMode hFileSize
@@ -81,20 +81,17 @@ postUploadFilesR = do
     
                 return [ "previewFileId" .= (toJSON previewFileId) ]
             else return []
-        
         if (("convert", "pdf") `elem` params)
             then do
-                (success, output) <- liftIO $ convert "pdf" name name'
+                success <- liftIO $ convert "pdf" name name'
                 when (not success) $ sendResponseStatus status500 $ object [
-                        "result" .= ("failed" :: Text),
-                        "error" .= output
+                        "result" .= ("failed" :: Text)
                     ]
                 liftIO $ removeFile name
                 update fileId' [ FileContentType =. "application/pdf" ]
             else liftIO $ renameFile name name' 
 
         return (fileId, extraFields)
-       
     return $ object $ [
             "result" .= ("ok" :: Text),
             "fileId" .= (toJSON fileId) 
