@@ -92,7 +92,6 @@ library
         yesod-static -any,
         yesod-form -any,
         bytestring -any,
-        process-listlike -any,
         text -any,
         persistent -any,
         persistent-postgresql -any,

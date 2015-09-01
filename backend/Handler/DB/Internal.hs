@@ -250,7 +250,7 @@ data NamedInstanceId = NamedInstanceFileId FileId
     | NamedInstanceUserId UserId
     | NamedInstanceReceiptId ReceiptId
     | NamedInstanceProcessPeriodId ProcessPeriodId
-
+    deriving (Eq, Ord)
 
 instance Named NamedInstance where
     namedName x = case x of
@@ -413,7 +413,7 @@ data HasInsertInfoInstance = HasInsertInfoInstanceFile (Entity File)
 
 data HasInsertInfoInstanceId = HasInsertInfoInstanceFileId FileId
     | HasInsertInfoInstanceReceiptId ReceiptId
-
+    deriving (Eq, Ord)
 
 instance HasInsertInfo HasInsertInfoInstance where
     hasInsertInfoInsertionTime x = case x of
@@ -513,7 +513,7 @@ data RestrictedInstanceId = RestrictedInstanceFileId FileId
     | RestrictedInstanceUserId UserId
     | RestrictedInstanceReceiptId ReceiptId
     | RestrictedInstanceProcessPeriodId ProcessPeriodId
-
+    deriving (Eq, Ord)
 
 instance Restricted RestrictedInstance where
 selectRestricted :: forall (m :: * -> *). 
@@ -580,7 +580,7 @@ data VersionedInstanceId = VersionedInstanceFileId FileId
     | VersionedInstanceUserGroupId UserGroupId
     | VersionedInstanceUserId UserId
     | VersionedInstanceReceiptId ReceiptId
-
+    deriving (Eq, Ord)
 
 instance Versioned VersionedInstance where
     versionedActiveId x = case x of
@@ -755,7 +755,7 @@ data DeletableInstanceId = DeletableInstanceFileId FileId
     | DeletableInstanceUserGroupItemId UserGroupItemId
     | DeletableInstanceUserId UserId
     | DeletableInstanceReceiptId ReceiptId
-
+    deriving (Eq, Ord)
 
 instance Deletable DeletableInstance where
     deletableDeletedVersionId x = case x of

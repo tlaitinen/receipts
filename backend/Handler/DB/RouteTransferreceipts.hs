@@ -10,6 +10,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -fno-warn-overlapping-patterns #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind #-}
@@ -110,7 +111,7 @@ postTransferreceiptsR  = lift $ runDB $ do
                     "message" .= ("require condition #1 failed" :: Text)
                     ])
     runDB_result <- do
-        forM_ (attr_receiptIdList) $ \result_rId -> do
+        forM_ (attr_receiptIdList :: [_]) $ \result_rId -> do
                     e1 <- do
                         es <- select $ from $ \o -> do
                             where_ (o ^. ReceiptId ==. (val result_rId))
