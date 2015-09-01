@@ -245,7 +245,7 @@ Ext.define('Receipts.Application', {
                         }
                     }
                 };
-               var ydsl = yesodDsl(defs, __, config);
+               var ydsl = yesodDsl(defs, __, config, function () { Receipts.GlobalState.fireEvent('ready'); });
            });
        });
    }
