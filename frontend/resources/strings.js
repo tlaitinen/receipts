@@ -57,6 +57,7 @@ function __(k,d) {
         'contentType' : 'Tiedostotyyppi',
         'insertionTime' : 'Ladattu',
         'save' : 'Tallenna muutokset',
+        'close' : 'Sulje',
         'saveandclose' : 'Tallenna muutokset ja sulje',
         'closewithoutsaving' : 'Sulje tallentamatta muutoksia',
         'usergroupitemsgrid.title' : 'Oikeudet käyttäjäryhmissä',

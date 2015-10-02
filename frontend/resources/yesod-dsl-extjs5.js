@@ -779,7 +779,7 @@ Ext.define(proxyName, {
                                         type: 'vbox',
                                         align: 'stretch'
                                     },
-                                    buttons: _.map(formCfg.buttons || [ 'save', 'saveandclose', 'closewithoutsaving' ], 
+                                    buttons: _.map(formCfg.buttons || [ 'save',  'close' ], 
                                                    function (n) {
                                                        var btn;
                                                        if (typeof n == 'string') {
