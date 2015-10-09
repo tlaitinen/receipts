@@ -6,13 +6,13 @@ Ext.define('Receipts.view.Login',{
         align:'center',
         pack:'center'
     },
+    bodyStyle: 'background:transparent;',
     url:'backend/auth/page/hashdb/login',
     errorReader: 'customreader',
     items: [
         { 
             xtype: 'form',
             defaultType:'textfield',
-            title: __('login.title'),
             bodyPadding:10,
             items: [
                 {

@@ -58,16 +58,21 @@ Ext.define('Receipts.controller.Login', {
         Receipts.GlobalState.on('ready', function() {
             var win = new Ext.Window({
                 id:'login',
-                layout:'fit',
-                width:'100%',
-                height:'100%',
-                closable:false,
-                resizable:false,
-                plain:true,
+                layout: {
+                    type: 'vbox',
+                    align:'center',
+                    pack:'center' 
+                },
                 title: __('login.title'),
+                plain:true,
+                border: false,
+                closable:false,
+                draggable:false,
+                resizable:false,
+                margin: '0 0 0 0',
                 items: [{xtype:'login'}]
             });
-            win.show();
+            win.show()
             c.loadUser();
         });
         

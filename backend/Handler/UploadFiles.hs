@@ -17,6 +17,8 @@ import Data.Aeson
 import System.Process
 import System.Exit
 import Network.HTTP.Types (status500)
+import System.IO.Temp (openTempFile)
+
 
 convert :: String -> FilePath -> FilePath -> IO Bool
 convert ext src dst = do
@@ -38,9 +40,10 @@ postUploadFilesR = do
     fi <- maybe notFound return $ lookup "file" files
     now <- liftIO $ getCurrentTime
     settings<- fmap appSettings getYesod
-    let name = joinPath [appUploadDir settings,  
-                         show now ++ "-" ++ T.unpack (I.fileName fi)]
-
+    name <- liftIO $ do
+        (fp, h) <- openTempFile (appUploadDir settings) "upload"
+        hClose h
+        return fp 
     liftIO $ fileMove fi name
 
     size <- liftIO $ withFile name ReadMode hFileSize 
