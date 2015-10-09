@@ -21,7 +21,7 @@ function __(k,d) {
         'validationError.title' : 'Virheellisiä tietoja',
         'validationError.message' : 'Lomakkeella on virheellisiä tietoja.',
         'validationError.password' : 'Salasanat eivät täsmää.',
-        'login.title' : 'Kirjautuminen omat.paprut.fi-sivuille',
+        'login.title' : 'Kirjautuminen paprut.fi-sivuille',
         'login.waittitle' : 'Kirjautuminen käynnissä',
         'login.waitmessage' : 'Lähetetään tietoja',
         'login.failedtitle' : 'Virhe',
