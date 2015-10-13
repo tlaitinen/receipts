@@ -1,5 +1,6 @@
 function __(k,d) {
     var strings = {
+        'site.title' : 'Paprut.fi palvelun avulla lähetät näpsäkästi kuukausittaisen kirjanpitoaineistosi sähköisesti kirjanpitäjällesi.',
         'receipttransferform.title' : 'Siirto toiselle kirjanpitojaksolle',
         'receipttransferform.yes' : 'Siirrä valitut tositteet',
         'receipttransferform.no' : 'Peruuta',
