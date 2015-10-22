@@ -142,7 +142,7 @@ Ext.define('Receipts.Application', {
                                         {
                                             field:'processPeriodId',
                                             editor: {
-                                                xtype: 'processperiodscombo',
+                                                xtype: 'processperiodscombo'
                                             },
                                             flex:2
                                         }
