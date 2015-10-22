@@ -13,7 +13,7 @@ function __(k,d) {
         'confirmsend.title' : 'Kirjanpitoaineiston lähettäminen',
         'confirmsend.message' : 'Lähetetäänkö kirjanpitojakson tositteet käsiteltäväksi?`',
         'receipts.preview' : 'Tositteen kuva',
-        'previewFileId' : 'preview',
+        'preview.notAvailable' : 'Esikatselu ei ole saatavilla. Voit ladata tiedoston klikkaamalla linkkiä.',
         'saveError.title': 'Tietojen tallentaminen epäonnistui',
         'saveError.message': 'Tietojen tallentaminen epäonnistui: ',
         'userpasswordform.title' : 'Käyttäjän salasanan muuttaminen',

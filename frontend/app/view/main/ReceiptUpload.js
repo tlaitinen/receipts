@@ -91,8 +91,10 @@ Ext.define('Receipts.view.main.ReceiptUpload', {
                     }, false);
             xhr.open("POST", "backend/upload-files", true);
             var fd = new FormData();
-            fd.append('convert', 'pdf');
-            fd.append('preview', 'jpeg');
+            if (["application/pdf", "image/png", "image/jpeg", "image/gif", "image/bmp", "image/tiff"].indexOf(file.type) > -1) {
+                fd.append('convert', 'pdf');
+                fd.append('preview', 'jpeg');
+            }
             fd.append('file', file);
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4) {
