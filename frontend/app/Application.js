@@ -78,6 +78,7 @@ Ext.define('Receipts.Application', {
                             grids: [
                                 {
                                     widget: 'receiptsgrid',
+                                    loadOnRender:true,
                                     title: undefined,
                                     preload:false,
                                     plugins: 'cellediting',
@@ -113,6 +114,7 @@ Ext.define('Receipts.Application', {
                                 {
                                     widget: 'unclassifiedreceiptsgrid',
                                     title: undefined,
+                                    loadOnRender:true,
                                     preload:false,
                                     plugins: {
                                         ptype: 'cellediting',

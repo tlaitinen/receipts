@@ -50,7 +50,7 @@ var yesodDsl = function(defs, __, config, onReady) {
                     property: cf.field,
                     value: cf.value,
                     comparison: cf.comparison
-                }), false
+                }), true
             );
         });
         return store;
@@ -580,7 +580,7 @@ Ext.define(proxyName, {
                                                 if (gridCfg.tooltip)
                                                     createToolTip(view, gridCfg.tooltip);
 
-                                                if (gridCfg.preload != false) {
+                                                if (gridCfg.preload != false || gridCfg.loadOnRender == true) {
                                                     this.store.load();
                                                 }
                                             },
@@ -616,7 +616,7 @@ Ext.define(proxyName, {
                                                     property: f.field,
                                                     comparison: f.comparison || 'eq',
                                                     value: f.value,
-                                                }), false)
+                                                }), true)
                                         });
 
 
