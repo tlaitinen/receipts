@@ -122,7 +122,7 @@ Version json
     userId UserId  
 Receipt json
     fileId FileId  
-    processPeriodId ProcessPeriodId  
+    processPeriodId ProcessPeriodId Maybe   default=NULL
     amount Double  
     processed Bool  "default=False"
     name Text  
@@ -204,10 +204,10 @@ newVersion time_ userId_ = Version {
     versionTime = time_,
     versionUserId = userId_
 }    
-newReceipt :: FileId -> ProcessPeriodId -> Double -> Text -> UTCTime -> Receipt
-newReceipt fileId_ processPeriodId_ amount_ name_ insertionTime_ = Receipt {
+newReceipt :: FileId -> Double -> Text -> UTCTime -> Receipt
+newReceipt fileId_ amount_ name_ insertionTime_ = Receipt {
     receiptFileId = fileId_,
-    receiptProcessPeriodId = processPeriodId_,
+    receiptProcessPeriodId = Nothing,
     receiptAmount = amount_,
     receiptProcessed = False,
     receiptName = name_,

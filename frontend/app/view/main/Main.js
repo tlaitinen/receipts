@@ -10,7 +10,8 @@ Ext.define('Receipts.view.main.Main', {
     requires: [
         'Receipts.view.main.MainController',
         'Receipts.view.main.ReceiptUpload',
-        'Receipts.view.main.ReceiptTransferForm'
+        'Receipts.view.main.ReceiptTransferForm',
+        'Receipts.view.main.Viewer'
     ],
 
     xtype: 'app-main',
@@ -41,19 +42,7 @@ Ext.define('Receipts.view.main.Main', {
                 id:'maintab-receipts',
                 reference: 'receiptsTab',
                 title: __('maintab.receipts'),
-                layout:{
-                    type:'vbox',
-                    align:'stretch'
-                },
-                items: [
-                    { xtype: 'receiptsgrid', flex:3 },
-                    { 
-                        xtype: 'receiptupload', 
-                        flex:1,
-                        title: __('upload.title'),
-                        autoscroll:true
-                    }
-                ]
+                xtype: 'receiptsviewer' 
             },
             {
                 reference: 'usersTab',

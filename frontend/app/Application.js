@@ -16,13 +16,15 @@ Ext.define('Receipts.Application', {
     ],
     controllers: [
         'Login@Receipts.controller',
-        'ReceiptTransferForm@Receipts.controller'
+        'ReceiptTransferForm@Receipts.controller',
+        'ReceiptPreview@Receipts.controller'
     ],
 
     stores: [
     ],
     
     init:function() {
+        moment.locale(__('locale'));
         Ext.History.init();
         Ext.define('Receipts.CustomReader', {
             extend: 'Ext.data.reader.Reader',
@@ -76,15 +78,9 @@ Ext.define('Receipts.Application', {
                             grids: [
                                 {
                                     widget: 'receiptsgrid',
-                                    globalStore:true,
+                                    title: undefined,
                                     preload:false,
                                     plugins: 'cellediting',
-                                    toolbar: [
-                                        {
-                                            xtype:'processperiodscombo',
-                                            filterField:'processPeriodId'
-                                        }
-                                    ],
                                     columns: [ 
                                         { field:'name', editor: { allowBlank:false}, flex:5 }, 
                                         { 
@@ -105,22 +101,56 @@ Ext.define('Receipts.Application', {
                                                     return '<span class="glyphicon glyphicon-ok"></span>';
                                                 return ' ';
                                             }
-                                        },
-                                        { 
-                                            field:'previewFileId', 
-                                            flex:1,
-                                            renderer: function (value) {
-                                                return '<span class="glyphicon glyphicon-picture"></span>';
-                                            }
-                                        } 
+                                        }
                                     ],
                                     bottomToolbar: [
                                         { name: 'remove', action:'remove' },
-                                        { name: 'send', requireSelection:false },
+                                        { name: 'send', requireSelection:false}, 
                                         { name: 'transfer' }
                                     ]
 
+                                },
+                                {
+                                    widget: 'unclassifiedreceiptsgrid',
+                                    title: undefined,
+                                    preload:false,
+                                    plugins: {
+                                        ptype: 'cellediting',
+                                        clicksToEdit: 1
+                                    },
+                                    filters: [
+                                        {
+                                            field:'processPeriodId',
+                                            value:null,
+                                            comparison:'is'
+                                        }
+                                    ],
+                                    columns: [ 
+                                        { field:'name', editor: { allowBlank:false}, flex:5 }, 
+                                        { 
+                                            field:'amount', 
+                                            editor: {
+                                                xtype: 'numberfield'
+                                            }, 
+                                            flex:1,
+                                            renderer: function(v) {
+                                                return Ext.util.Format.currency(v, '€', 2, true);
+                                            }
+                                        },
+                                        {
+                                            field:'processPeriodId',
+                                            editor: {
+                                                xtype: 'processperiodscombo',
+                                            },
+                                            flex:2
+                                        }
+                                    ],
+                                    bottomToolbar: [
+                                        { name: 'remove', action:'remove' }
+                                    ]
+
                                 }
+
                             ]
                         },
                         users: {

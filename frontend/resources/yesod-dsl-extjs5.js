@@ -563,30 +563,14 @@ Ext.define(proxyName, {
 
 
                             grids.forEach(function(gridCfg) {
-                                var store = undefined;
-                                if (gridCfg.globalStore == true) {
-                                    store = globalStore;
-                                } else {
-                                    store = createStore(storeClass);
-                                }
-
-
-                                (gridCfg.filters || []).forEach(function (f) {
-                                    store.addFilter(new Ext.util.Filter({
-                                            id: f.field,
-                                            property: f.field,
-                                            value: f.value,
-                                        }), false)
-                                });
+                             
                                 var widgetName = gridWidgetName(name, gridCfg);
                                 var listName  = gridClsName(name, gridCfg);
-                                Ext.define(listName, {
+                                var cfg = {
                                     extend: 'Ext.grid.Panel',
                                     alias: 'widget.' + widgetName,
                                     multiSelect: true,
-                                    store: store,
                                     allowDeselect : true,
-                                    title: __(widgetName + '.title'),
                                     requires: ['Ext.toolbar.Paging'],
                                     plugins: gridCfg.plugins || [],
                                     viewConfig: {
@@ -597,7 +581,7 @@ Ext.define(proxyName, {
                                                     createToolTip(view, gridCfg.tooltip);
 
                                                 if (gridCfg.preload != false) {
-                                                    store.load();
+                                                    this.store.load();
                                                 }
                                             },
                                             celldblclick: function(grid, td, cellIndex, record, tr, rowIndex, e, eOpts) {
@@ -619,6 +603,23 @@ Ext.define(proxyName, {
                                         }
                                     },
                                     initComponent: function() {
+                                        if (gridCfg.globalStore == true) {
+                                            this.store = globalStore;
+                                        } else {
+                                            this.store = createStore(storeClass);
+                                        }
+                                        var store = this.store;
+
+                                        (gridCfg.filters || []).concat(this.filters || []).forEach(function (f) {
+                                            store.addFilter(new Ext.util.Filter({
+                                                    id: f.field,
+                                                    property: f.field,
+                                                    comparison: f.comparison || 'eq',
+                                                    value: f.value,
+                                                }), false)
+                                        });
+
+
                                         var grid = this;
                                         this.columns = _.map(gridCfg.columns, function(c) {
                                                     if (typeof c == 'string') {
@@ -644,122 +645,140 @@ Ext.define(proxyName, {
                                                     
                                                     return r;
                                                 });
-                                        var displayMsg = __(widgetName + '.paging','x');
-                                        if (displayMsg === 'x')
-                                            displayMsg = __(widgetName + '.title') + " {0} - {1} / {2}";
-            
-                                        this.bbar = Ext.create('Ext.PagingToolbar', {
-                                            store: store,
-                                            displayInfo: true,
-                                            displayMsg: displayMsg,
-                                            emptyMsg: __(widgetName + '.emptyPaging'),
-                                            items: ['-'].concat(_.map(gridCfg.bottomToolbar || [], function(tb) {
-                                                return {
-                                                    name:tb.name,
-                                                    text:__(widgetName +"." + tb.name),
-                                                    listeners: {
-                                                        click: function(button) {
-                                                            if (tb.action == 'remove') {
-                                                                var selected = button.up(widgetName).getSelectionModel().getSelection();
-                                                                store.remove(selected);
-                                                                store.sync();
-                                                            } else if (tb.action == 'new') {
-                                                                var record = Ext.create(modelName, entityDefaults(entityName));
-                                                                record.setId(0);
+                                                                                         
 
-                                                                var form = gridCfg.form, formWidth = gridCfg.formWidth || 610, formHeight = gridCfg.formHeight || 630;
-                                                                if (typeof form == "function")
-                                                                    form = form(record);
-                                                                if (typeof formWidth == "function")
-                                                                    formWidth = formWidth(record);
-                                                                if (typeof formHeight == "function")
-                                                                    formHeight = formHeight(record);
-
-
-
-                                                                openFormWindow(form, formWidth, formHeight, record);
-                                                                                                                           } else if (tb.action == 'add') {
-                                                                var record = Ext.create(modelName, entityDefaults(entityName));
-                                                                record.setId(0);
-                                                                record.save({
-                                                                    success: function(rec, op) {
-                                                                        var r = JSON.parse(op.getResponse().responseText)
-                                                                        record.setId(r.id);
-                                                                        store.insert(0, record);
-                                                                        var rowEdit = grid.getPlugin('rowediting');
-                                                                        if (rowEdit) {
-                                                                            rowEdit.startEdit(0, 0);
-                                                                        }
-
-
-
+                                        this.dockedItems = (function () { 
+                                            var toolbar = _.map(gridCfg.toolbar || [], function(tb) {
+                                                    if (endsWith(tb.xtype, 'combo')) {
+                                                        return {
+                                                            xtype: tb.xtype,
+                                                            dock: tb.dock || 'top',
+                                                            listeners: {
+                                                                select: function(combo) {
+                                                                    store.removeFilter(tb.filterField, true);
+                                                                    var v = combo.getValue();
+                                                                    if (v != '__EMPTY_VALUE__') {
+                                                                        store.addFilter(new Ext.util.Filter({
+                                                                                id: tb.filterField,
+                                                                                property: tb.filterField,
+                                                                                value: ''+((v != undefined) ? v : 0)
+                                                                            }));
                                                                     }
-                                                                });
+                                                                },
+                                                                change: function(combo) {
+                                                                    if (combo.getValue() == '') {
+                                                                        store.removeFilter(tb.filterField);
+                                                                    }
+                                                                }
                                                             }
-                                                        }
-                                                    }
-                                                };
-                                            }))
-                                        });
-                                        this.callParent(arguments);
-
-                                    },
-                                    dockedItems: (function () { 
-                                        var toolbar = _.map(gridCfg.toolbar || [], function(tb) {
-                                                if (endsWith(tb.xtype, 'combo')) {
-                                                    return {
-                                                        xtype: tb.xtype,
-                                                        listeners: {
-                                                            select: function(combo) {
-                                                                store.removeFilter(tb.filterField, true);
-                                                                var v = combo.getValue();
-                                                                if (v != '__EMPTY_VALUE__') {
+                                                        };
+                                                    } else
+                                                        console.log("unsupported toolbar item xtype: " + tb.xtype);
+                                                });
+                                            if (gridCfg.searchField != false) {
+                                                toolbar.push({ 
+                                                    xtype: 'textfield',
+                                                    itemId: 'textSearch', 
+                                                    flex:1,
+                                                    emptyText: __(widgetName + '.search'),
+                                                    listeners: {
+                                                        change: {
+                                                            buffer: 500,
+                                                            fn: function(textField) {
+                                                                if (textField.getValue() != '') {
+                                                                    store.removeFilter('query', true);
                                                                     store.addFilter(new Ext.util.Filter({
-                                                                            id: tb.filterField,
-                                                                            property: tb.filterField,
-                                                                            value: ''+((v != undefined) ? v : 0)
-                                                                        }));
-                                                                }
-                                                            },
-                                                            change: function(combo) {
-                                                                if (combo.getValue() == '') {
-                                                                    store.removeFilter(tb.filterField);
+                                                                        id: 'query',
+                                                                        property: 'query',
+                                                                        value: '' + textField.getValue()
+                                                                    }));
+                                                                } else {
+                                                                    store.removeFilter('query');
                                                                 }
                                                             }
                                                         }
-                                                    };
-                                                } else
-                                                    console.log("unsupported toolbar item xtype: " + tb.xtype);
-                                            });
-                                        if (gridCfg.searchField != false) {
-                                            toolbar.push({ 
-                                                xtype: 'textfield',
-                                                itemId: 'textSearch', 
-                                                flex:1,
-                                                emptyText: __(widgetName + '.search'),
-                                                listeners: {
-                                                    change: {
-                                                        buffer: 500,
-                                                        fn: function(textField) {
-                                                            if (textField.getValue() != '') {
-                                                                store.removeFilter('query', true);
-                                                                store.addFilter(new Ext.util.Filter({
-                                                                    id: 'query',
-                                                                    property: 'query',
-                                                                    value: '' + textField.getValue()
-                                                                }));
-                                                            } else {
-                                                                store.removeFilter('query');
-                                                            }
-                                                        }
-                                                    }
+                                                    },
+                                                    plugins: config.defaultTextFieldPlugins || []
+                                                });
+                                            }
+                                            var displayMsg = __(widgetName + '.paging','x');
+                                            if (displayMsg === 'x')
+                                                displayMsg = __(widgetName + '.title') + " {0} - {1} / {2}";
+                                            
+                                            return toolbar.concat([
+                                                {
+                                                    xtype:'pagingtoolbar',
+                                                    dock:'bottom',
+                                                    store:store,
+                                                    displayInfo: true,
+                                                    displayMsg: displayMsg,
+                                                    emptyMsg: __(widgetName + '.emptyPaging'),
+                                                    items: ['-']
                                                 },
-                                                plugins: config.defaultTextFieldPlugins || []
-                                            });
-                                        }
-                                        return toolbar;
-                                    })()
-                                }, function(listCls) {
+                                                {
+                                                    xtype:'toolbar',
+                                                    dock:'bottom',
+                                                    padding:'0 3 0 3',
+                                                    items: _.map(gridCfg.bottomToolbar || [], function(tb) {
+                                                        return {
+                                                            name:tb.name,
+                                                            text:__(widgetName +"." + tb.name),
+                                                            listeners: {
+                                                                click: function(button) {
+                                                                    if (tb.action == 'remove') {
+                                                                        var selected = button.up(widgetName).getSelectionModel().getSelection();
+                                                                        store.remove(selected);
+                                                                        store.sync();
+                                                                    } else if (tb.action == 'new') {
+                                                                        var record = Ext.create(modelName, entityDefaults(entityName));
+                                                                        record.setId(0);
+
+                                                                        var form = gridCfg.form, formWidth = gridCfg.formWidth || 610, formHeight = gridCfg.formHeight || 630;
+                                                                        if (typeof form == "function")
+                                                                            form = form(record);
+                                                                        if (typeof formWidth == "function")
+                                                                            formWidth = formWidth(record);
+                                                                        if (typeof formHeight == "function")
+                                                                            formHeight = formHeight(record);
+
+
+
+                                                                        openFormWindow(form, formWidth, formHeight, record);
+                                                                                                                                   } else if (tb.action == 'add') {
+                                                                        var record = Ext.create(modelName, entityDefaults(entityName));
+                                                                        record.setId(0);
+                                                                        record.save({
+                                                                            success: function(rec, op) {
+                                                                                var r = JSON.parse(op.getResponse().responseText)
+                                                                                record.setId(r.id);
+                                                                                store.insert(0, record);
+                                                                                var rowEdit = grid.getPlugin('rowediting');
+                                                                                if (rowEdit) {
+                                                                                    rowEdit.startEdit(0, 0);
+                                                                                }
+
+
+
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }
+                                                        };
+                                                    })
+                                                }
+                                            ])
+
+                                        })();
+
+                                        this.callParent(arguments);
+                                    }
+                                };
+                                if (gridCfg.hasOwnProperty("title"))
+                                    cfg.title = gridCfg.title;
+                                else
+                                    cfg.title = __(widgetName + '.title');
+                                Ext.define(listName, cfg, function(listCls) {
                                     deferreds[listName].resolve();
                                 });
                             });

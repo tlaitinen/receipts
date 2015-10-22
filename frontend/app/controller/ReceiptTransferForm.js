@@ -18,18 +18,23 @@ Ext.define('Receipts.controller.ReceiptTransferForm', {
             },
             'receipttransferform button[name=yes]' : {
                 click: function(button) {
-                    var receiptsGrid = Ext.ComponentQuery.query('panel[name=receipts] receiptsgrid')[0];
+                    var receiptsGrid = button.up('window').sender.up('grid');
                     var selected = receiptsGrid.getSelectionModel().getSelection();
                     var form = button.up('form');
+                    var processPeriodId = form.down('processperiodscombo').getValue();
                     Ext.Ajax.request({
                         url: 'backend/db/transferreceipts',
                         method: 'POST',
                         jsonData: {
-                            processPeriodId: form.down('processperiodscombo').getValue(),
+                            processPeriodId: processPeriodId,
                             receiptIdList: selected.map(function (r) { return r.getId(); } )
                         },
                         success: function(request) {
-                            Ext.getStore('receipts').reload();
+                            receiptsGrid.store.reload();
+                            Ext.ComponentQuery.query('receiptsgrid[processPeriodId=' + processPeriodId + ']').forEach(
+                                function (g) {
+                                    g.store.reload();
+                                });
                         },
                         failure: function(request) {
                             Ext.Msg.alert(__('receipttransferform.errortitle'), __('receipttransferform.errormessage'));

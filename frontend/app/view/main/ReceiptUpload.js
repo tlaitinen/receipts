@@ -3,15 +3,10 @@ Ext.define('Receipts.view.main.ReceiptUpload', {
     alias: 'widget.receiptupload',
     extend: 'Ext.Panel',
 
-     html: '<div id="receiptuploadDiv" class="fileUpload"><input id="receiptupload" type="file" name="files" multiple value="' + __('upload.button') + '"/>' + __('upload.button') + '</div><div id="progress"></div>',
+     html: '<div name="receiptuploadDiv" class="fileUpload"><input name="receiptupload" type="file" name="files" multiple value="' + __('upload.button') + '"/>' + __('upload.button') + '</div><div name="progress"></div>',
 
-    uploadHandler: function(e) {
+    uploadHandler: function(view, e) {
         e.preventDefault();
-        var ppCombo = ppCombo = Ext.ComponentQuery.query('panel[name=receipts] receiptsgrid processperiodscombo')[0];
-        if (!(ppCombo.getValue() > 0)) {
-            Ext.MessageBox.alert(__('noprocessperiod.title'), __('noprocessperiod.message'));
-            return ;
-        }
         function parseInfo(name) {
             var delims = [' ', '_', '-'];
             var r = {
@@ -63,20 +58,19 @@ Ext.define('Receipts.view.main.ReceiptUpload', {
                     this.progress.updateProgress(1, msg);
                     var ctrl = this;
                     setTimeout(function() { 
-                        $('#' + ctrl.label).remove();
+                        $(view.getEl().dom).find('[name=' + ctrl.label+']').remove();
                             }, 5000);
                 }
             };
-
+            var progress = $(view.getEl().dom).find("div[name=progress]");
+            var bar = $('<div>');
             $('<span>')
-                .attr("id", ctrl.label)
-                .html(
-                    $('<div>')
-                        .attr('id', ctrl.bar)
-                 ).appendTo('#progress');
+                .attr("name", ctrl.label)
+                .html(bar)
+                .appendTo(progress);
 
             ctrl.progress = Ext.create('Ext.ProgressBar', {
-                  renderTo: Ext.get(ctrl.bar),
+                  renderTo: bar[0],
                   width: '100%'
             });
             
@@ -113,15 +107,20 @@ Ext.define('Receipts.view.main.ReceiptUpload', {
                                 amount: info.amount,
                                 fileId: r.fileId,
                                 previewFileId: r.previewFileId,
-                                processPeriodId: ppCombo.getValue(),
+                                processPeriodId: view.processPeriodId,
                                 fileName: file.name,
                                 insertionTime: (new Date()).toJSON()
                             });
+                        console.log(view.processPeriodId);
+                        console.log(receipt);
                         receipt.save({
                             success: function(rec, op) {
                                 var r = JSON.parse(op.getResponse().responseText);
                                 receipt.setId(r.id);
-                                Ext.getStore('receipts').add(receipt);
+                                Ext.ComponentQuery.query('receiptsgrid[processPeriodId=' + view.processPeriodId + ']')
+                                    .forEach(function (g) {
+                                        g.store.add(receipt);
+                                    });
                             }
                         });
 
@@ -143,10 +142,12 @@ Ext.define('Receipts.view.main.ReceiptUpload', {
 
     onRender: function(ct) {
         this.callParent(arguments);
-        document.getElementById('receiptupload')
-            .addEventListener("change", this.uploadHandler, false);
-        var div = document.getElementById('receiptuploadDiv');
-        div.addEventListener('drop', this.uploadHandler, false);
+        var html = $(this.getEl().dom);
+        var input = html.find("input");
+        var view = this;
+        input[0].addEventListener("change", function(e) { view.uploadHandler(view, e); }, false);
+        var div =html.find("div[name=receiptuploadDiv]")[0];
+        div.addEventListener('drop', function (e) { view.uploadHandler(view, e); }, false);
         div.addEventListener('dragover', function (e) { e.preventDefault(); $(div).addClass('hover'); return false; }, false);
         div.addEventListener('dragleave', function (e) { e.preventDefault();  $(div).removeClass('hover'); return false; }, false);
     }

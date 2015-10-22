@@ -27,29 +27,12 @@ Ext.define('Receipts.view.main.MainController', {
             }
         }
     },
-    getProcessPeriodCombo: function() {
-        return Ext.ComponentQuery.query('panel[name=receipts] receiptsgrid processperiodscombo')[0];
-    },
-    resetProcessPeriodCombo: function() {
-        var ppCombo = this.getProcessPeriodCombo(),
-            pps = Ext.getStore('processperiods');
-        pps.load(function() {
-
-            ppCombo.clearValue();
-            if (pps.getCount() > 0) {
-                ppCombo.setValue(pps.getAt(0).getId());
-            }
-            ppCombo.fireEvent('select', ppCombo);
-            ppCombo.configStore();
-        });
-    },
     onLogin: function() {
         
         if (Receipts.GlobalState.user.config.usersTab == true) {
             this.lookupReference('usersTab').tab.show();
         }
 
-        this.resetProcessPeriodCombo();
         this.redirectTo('maintab:maintab-receipts');
     },
 
@@ -84,39 +67,6 @@ Ext.define('Receipts.view.main.MainController', {
         }
         var child = tabPanel.getComponent(id);
         tabPanel.setActiveTab(child);
-        var previewWin = Ext.getCmp('preview');
-        if (previewWin)
-            previewWin.close();
-    },
-    showPreview: function(id) {
-        var controller = this;
-        var win = new Ext.Window({
-            id:'preview',
-            layout:'fit',
-            width:'80%',
-            height:'80%',
-            closable:true,
-            resizable:true,
-            plain:true,
-            title: __('preview.title'),
-            items: [
-                { 
-                    xtype:'panel',
-                    html: '<img src="backend/file/' + id + '"/>',
-                    autoScroll:true,
-                    listeners: {
-                       'render': function(panel) {
-                           panel.body.on('click', function() {
-                                win.close();
-                                controller.redirectTo('maintab:maintab-receipts');
-                           });
-                        }
-                    }
-                }
-            ]
-        });
-        win.show();
-
     },
     init: function() {
         var controller = this;
@@ -126,22 +76,6 @@ Ext.define('Receipts.view.main.MainController', {
         });
 
         this.control({
-            'receiptsgrid' : {
-                cellclick: function( grid, td, cellIndex, record, tr, rowIndex, e, eOpts ) {
-                    if (cellIndex == 3) {
-                        controller.redirectTo('maintab:maintab-receipts|preview:' + record.get('previewFileId'));
-                        controller.showPreview(record.get('previewFileId'));
-                    }
-                },
-                beforeedit: function(editor, context, eOpts) {
-                    
-                },
-                edit: function(editor, context, eOpts) {
-                   //  context.record.set('amount', context.value.replace(",","."));
-
-                }
-
-            },
             'receiptsgrid button[name=transfer]' : {
                 click: function(button) {
                     if (Ext.getCmp('receipttransferform') == undefined) {
@@ -151,7 +85,8 @@ Ext.define('Receipts.view.main.MainController', {
                             width:320,
                             height:120,
                             resizable:false,
-                            items : [{xtype: 'receipttransferform'}]
+                            items : [{xtype: 'receipttransferform'}],
+                            sender: button
                         });
                         win.show();
                         return win;

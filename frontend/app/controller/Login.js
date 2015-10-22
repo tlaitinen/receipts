@@ -24,7 +24,10 @@ Ext.define('Receipts.controller.Login', {
                                 }
                             ]
                         });
-                        Receipts.GlobalState.fireEvent('login');
+                        $("#site-title").hide();
+                        Ext.getStore('processperiods').load(function() {
+                            Receipts.GlobalState.fireEvent('login');
+                        });
                     }
                 } catch (e) {
                     console.log(e);

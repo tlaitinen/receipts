@@ -185,6 +185,16 @@ putReceiptsReceiptIdR p1 = lift $ runDB $ do
     jsonBodyObj <- case jsonBody of
         A.Object o -> return o
         v -> sendResponseStatus status400 $ A.object [ "message" .= ("Expected JSON object in the request body, got: " ++ show v) ]
+    attr_processPeriodId <- case HML.lookup "processPeriodId" jsonBodyObj of 
+        Just v -> case A.fromJSON v of
+            A.Success v' -> return v'
+            A.Error err -> sendResponseStatus status400 $ A.object [
+                    "message" .= ("Could not parse value from attribute processPeriodId in the JSON object in request body" :: Text),
+                    "error" .= err
+                ]
+        Nothing -> sendResponseStatus status400 $ A.object [
+                "message" .= ("Expected attribute processPeriodId in the JSON object in request body" :: Text)
+            ]
     attr_fileId <- case HML.lookup "fileId" jsonBodyObj of 
         Just v -> case A.fromJSON v of
             A.Success v' -> return v'
@@ -284,6 +294,8 @@ putReceiptsReceiptIdR p1 = lift $ runDB $ do
     
             return $ e {
                             receiptFileId = attr_fileId
+                    ,
+                            receiptProcessPeriodId = attr_processPeriodId
                     ,
                             receiptAmount = attr_amount
                     ,

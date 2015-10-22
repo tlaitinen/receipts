@@ -203,9 +203,12 @@ getReceiptsR  = lift $ runDB $ do
                 "fileId" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
                     (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (r  ^.  ReceiptFileId) ((val v'))
                     _        -> return ()
-                "processPeriodId" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
-                    (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (r  ^.  ReceiptProcessPeriodId) ((val v'))
-                    _        -> return ()
+                "processPeriodId" -> case FS.f_value fjm of
+                    Just value -> case PP.fromPathPiece value of 
+                            (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (r  ^.  ReceiptProcessPeriodId) (just ((val v')))
+                            _        -> return ()
+                    Nothing -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (r  ^.  ReceiptProcessPeriodId) nothing
+                           
                 "amount" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
                     (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (r  ^.  ReceiptAmount) ((val v'))
                     _        -> return ()
@@ -241,7 +244,7 @@ getReceiptsR  = lift $ runDB $ do
         case FS.getDefaultFilter filterParam_processPeriodId defaultFilterJson "processPeriodId" of
             Just localParam -> do 
                 
-                where_ $ (r ^. ReceiptProcessPeriodId) ==. (val localParam)
+                where_ $ (r ^. ReceiptProcessPeriodId) ==. (val $ Just localParam)
             Nothing -> return ()
         return (r ^. ReceiptId, r ^. ReceiptFileId, r ^. ReceiptProcessPeriodId, r ^. ReceiptAmount, r ^. ReceiptProcessed, r ^. ReceiptName, r ^. ReceiptInsertionTime, r ^. ReceiptInsertedByUserId, pf ?. FileId)
     count <- select $ do

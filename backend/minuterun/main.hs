@@ -136,7 +136,7 @@ processQueuedPeriods settings = do
         receipts <- select $ from $ \(r `InnerJoin` f)-> do
             on (f ^. FileId ==. r ^. ReceiptFileId)
             where_ $ r ^. ReceiptProcessed ==. val False
-            where_ $ r ^. ReceiptProcessPeriodId ==. val ppId
+            where_ $ r ^. ReceiptProcessPeriodId ==. val (Just ppId)
             where_ $ isNothing $ r ^. ReceiptDeletedVersionId
             return (r,f)        
         archives <- liftIO $ packReceipts settings receipts    

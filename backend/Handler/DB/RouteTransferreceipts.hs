@@ -78,16 +78,6 @@ postTransferreceiptsR  = lift $ runDB $ do
     jsonBodyObj <- case jsonBody of
         A.Object o -> return o
         v -> sendResponseStatus status400 $ A.object [ "message" .= ("Expected JSON object in the request body, got: " ++ show v) ]
-    attr_processPeriodId <- case HML.lookup "processPeriodId" jsonBodyObj of 
-        Just v -> case A.fromJSON v of
-            A.Success v' -> return v'
-            A.Error err -> sendResponseStatus status400 $ A.object [
-                    "message" .= ("Could not parse value from attribute processPeriodId in the JSON object in request body" :: Text),
-                    "error" .= err
-                ]
-        Nothing -> sendResponseStatus status400 $ A.object [
-                "message" .= ("Expected attribute processPeriodId in the JSON object in request body" :: Text)
-            ]
     attr_receiptIdList <- case HML.lookup "receiptIdList" jsonBodyObj of 
         Just v -> case A.fromJSON v of
             A.Success v' -> return v'
@@ -98,18 +88,16 @@ postTransferreceiptsR  = lift $ runDB $ do
         Nothing -> sendResponseStatus status400 $ A.object [
                 "message" .= ("Expected attribute receiptIdList in the JSON object in request body" :: Text)
             ]
-    _ <- do
-        result <- select $ from $ \(p ) -> do
-            let pId' = p ^. ProcessPeriodId
-            where_ (((p ^. ProcessPeriodId) ==. (val attr_processPeriodId)) &&. (hasReadPerm (val authId) (p ^. ProcessPeriodId)))
-
-            limit 1
-            return p
-        case result of
-            ((Entity _ _):_) -> return ()
-            _ -> sendResponseStatus status403 (A.object [
-                    "message" .= ("require condition #1 failed" :: Text)
-                    ])
+    attr_processPeriodId <- case HML.lookup "processPeriodId" jsonBodyObj of 
+        Just v -> case A.fromJSON v of
+            A.Success v' -> return v'
+            A.Error err -> sendResponseStatus status400 $ A.object [
+                    "message" .= ("Could not parse value from attribute processPeriodId in the JSON object in request body" :: Text),
+                    "error" .= err
+                ]
+        Nothing -> sendResponseStatus status400 $ A.object [
+                "message" .= ("Expected attribute processPeriodId in the JSON object in request body" :: Text)
+            ]
     runDB_result <- do
         forM_ (attr_receiptIdList :: [_]) $ \result_rId -> do
                     e1 <- do
