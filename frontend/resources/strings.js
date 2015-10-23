@@ -45,6 +45,7 @@ function __(k,d) {
         'usergroupsgrid.new' : 'Uusi ryhmä',
         'usergroupsgrid.remove' : 'Poista valitut ryhmät',
         'userform.title' : 'Käyttäjän tietojen muokkaaminen',
+        'userform.strictEmailCheck' : 'Sähköpostin vastaanottaminen vain käyttäjän osoitteesta',
         'userform.defaultUserGroupId' : 'Oletusryhmä',
         'userform.setUserPassword' : 'Vaihda salasana',
         'search' : 'Haku',

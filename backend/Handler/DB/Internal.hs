@@ -110,6 +110,7 @@ User json
     timeZone Text  "default='Europe/Helsinki'"
     current Checkmark  "default=True" nullable
     config Text  "default='{}'"
+    strictEmailCheck Bool  "default=False"
     name Text  
     activeId UserId Maybe   default=NULL
     activeStartTime UTCTime Maybe  
@@ -193,6 +194,7 @@ newUser defaultUserGroupId_ name_ = User {
     userTimeZone = "Europe/Helsinki",
     userCurrent = Active,
     userConfig = "{}",
+    userStrictEmailCheck = False,
     userName = name_,
     userActiveId = Nothing,
     userActiveStartTime = Nothing,

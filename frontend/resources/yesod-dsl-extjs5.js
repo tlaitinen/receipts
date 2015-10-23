@@ -10,7 +10,7 @@ var yesodDsl = function(defs, __, config, onReady) {
     var formItemXtypes = {
         integer: 'numberfield',
         number: 'numberfield',
-        boolean: 'checkbox',
+        boolean: 'checkboxfield',
         string: 'textfield',
         day: 'datefield',
         timeofday: 'timefield'

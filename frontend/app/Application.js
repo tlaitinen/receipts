@@ -17,7 +17,8 @@ Ext.define('Receipts.Application', {
     controllers: [
         'Login@Receipts.controller',
         'ReceiptTransferForm@Receipts.controller',
-        'ReceiptPreview@Receipts.controller'
+        'ReceiptPreview@Receipts.controller',
+        'UnclassifiedReceiptsGrid@Receipts.controller'
     ],
 
     stores: [
@@ -113,6 +114,7 @@ Ext.define('Receipts.Application', {
                                 },
                                 {
                                     widget: 'unclassifiedreceiptsgrid',
+                                    searchField:false,
                                     title: undefined,
                                     loadOnRender:true,
                                     preload:false,
@@ -171,15 +173,17 @@ Ext.define('Receipts.Application', {
                                         { name: 'remove', action:'remove' } 
                                     ], 
                                     form:'userform',
-                                    formHeight:300
+                                    formHeight:330
                                 }
                             ],
                             forms: [
                                 {
                                     widget: 'userform',
+                                    labelWidth:200,
                                     items: [
                                         'name', 'firstName', 'lastName', 'email', 
                                         'timeZone',
+                                        'strictEmailCheck',
                                         'defaultUserGroupId',
                                         { xtype:'button', name:'setUserPassword', 
                                          form:'userpasswordform', formHeight:200 }

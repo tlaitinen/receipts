@@ -83,7 +83,7 @@ getUsersUserIdR p1 = lift $ runDB $ do
 
                  
             else return ()
-        return (u ^. UserId, u ^. UserFirstName, u ^. UserLastName, u ^. UserOrganization, u ^. UserAdmin, u ^. UserEmail, u ^. UserDefaultUserGroupId, u ^. UserTimeZone, u ^. UserCurrent, u ^. UserConfig, u ^. UserName)
+        return (u ^. UserId, u ^. UserFirstName, u ^. UserLastName, u ^. UserOrganization, u ^. UserAdmin, u ^. UserEmail, u ^. UserDefaultUserGroupId, u ^. UserTimeZone, u ^. UserCurrent, u ^. UserConfig, u ^. UserStrictEmailCheck, u ^. UserName)
     count <- select $ do
         baseQuery False
         let countRows' = countRows
@@ -93,7 +93,7 @@ getUsersUserIdR p1 = lift $ runDB $ do
     return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
-                ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7), (Database.Esqueleto.Value f8), (Database.Esqueleto.Value f9), (Database.Esqueleto.Value f10), (Database.Esqueleto.Value f11)) -> A.object [
+                ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7), (Database.Esqueleto.Value f8), (Database.Esqueleto.Value f9), (Database.Esqueleto.Value f10), (Database.Esqueleto.Value f11), (Database.Esqueleto.Value f12)) -> A.object [
                     "id" .= toJSON f1,
                     "firstName" .= toJSON f2,
                     "lastName" .= toJSON f3,
@@ -104,7 +104,8 @@ getUsersUserIdR p1 = lift $ runDB $ do
                     "timeZone" .= toJSON f8,
                     "current" .= toJSON f9,
                     "config" .= toJSON f10,
-                    "name" .= toJSON f11                                    
+                    "strictEmailCheck" .= toJSON f11,
+                    "name" .= toJSON f12                                    
                     ]
                 _ -> A.object []
             ) results)
@@ -190,6 +191,16 @@ putUsersUserIdR p1 = lift $ runDB $ do
     jsonBodyObj <- case jsonBody of
         A.Object o -> return o
         v -> sendResponseStatus status400 $ A.object [ "message" .= ("Expected JSON object in the request body, got: " ++ show v) ]
+    attr_strictEmailCheck <- case HML.lookup "strictEmailCheck" jsonBodyObj of 
+        Just v -> case A.fromJSON v of
+            A.Success v' -> return v'
+            A.Error err -> sendResponseStatus status400 $ A.object [
+                    "message" .= ("Could not parse value from attribute strictEmailCheck in the JSON object in request body" :: Text),
+                    "error" .= err
+                ]
+        Nothing -> sendResponseStatus status400 $ A.object [
+                "message" .= ("Expected attribute strictEmailCheck in the JSON object in request body" :: Text)
+            ]
     attr_timeZone <- case HML.lookup "timeZone" jsonBodyObj of 
         Just v -> case A.fromJSON v of
             A.Success v' -> return v'
@@ -341,6 +352,8 @@ putUsersUserIdR p1 = lift $ runDB $ do
                             userDefaultUserGroupId = attr_defaultUserGroupId
                     ,
                             userTimeZone = attr_timeZone
+                    ,
+                            userStrictEmailCheck = attr_strictEmailCheck
                     ,
                             userName = attr_name
                     ,

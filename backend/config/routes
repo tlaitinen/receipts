@@ -6,4 +6,5 @@
 /db DBR DB getDB
 /upload-files UploadFilesR POST
 /file/#FileId FileR GET
+/mailgun MailgunR POST
 /set-user-password/#UserId SetUserPasswordR POST

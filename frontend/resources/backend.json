@@ -122,13 +122,13 @@
                         },
                         {
                             "references": null,
-                            "name": "name",
-                            "type": "string"
+                            "name": "insertionTime",
+                            "type": "utctime"
                         },
                         {
                             "references": null,
-                            "name": "insertionTime",
-                            "type": "utctime"
+                            "name": "name",
+                            "type": "string"
                         }
                     ],
                     "outputs": [],
@@ -176,14 +176,14 @@
                 {
                     "inputs": [
                         {
-                            "references": "UserGroup",
-                            "name": "userGroupId",
-                            "type": "integer"
-                        },
-                        {
                             "references": null,
                             "name": "userGroupContentIdList",
                             "type": null
+                        },
+                        {
+                            "references": "UserGroup",
+                            "name": "userGroupId",
+                            "type": "integer"
                         }
                     ],
                     "outputs": [],
@@ -193,13 +193,13 @@
                 {
                     "inputs": [
                         {
-                            "references": "File",
-                            "name": "fileId",
-                            "type": "integer"
+                            "references": null,
+                            "name": "userGroupIdList",
+                            "type": null
                         },
                         {
                             "references": null,
-                            "name": "userGroupIdList",
+                            "name": "fileId",
                             "type": null
                         }
                     ],
@@ -324,17 +324,17 @@
                     "inputs": [
                         {
                             "references": null,
-                            "name": "name",
-                            "type": "string"
-                        },
-                        {
-                            "references": null,
                             "name": "createPeriods",
                             "type": "integer"
                         },
                         {
                             "references": null,
                             "name": "email",
+                            "type": "string"
+                        },
+                        {
+                            "references": null,
+                            "name": "name",
                             "type": "string"
                         }
                     ],
@@ -405,14 +405,14 @@
                 {
                     "inputs": [
                         {
-                            "references": "UserGroup",
+                            "references": null,
                             "name": "userGroupId",
-                            "type": "integer"
+                            "type": null
                         },
                         {
-                            "references": "User",
+                            "references": null,
                             "name": "userId",
-                            "type": "integer"
+                            "type": null
                         },
                         {
                             "references": "UserGroupMode",
@@ -514,6 +514,11 @@
                             "references": null,
                             "name": "email",
                             "type": "string"
+                        },
+                        {
+                            "references": null,
+                            "name": "strictEmailCheck",
+                            "type": "boolean"
                         }
                     ],
                     "type": "GET",
@@ -550,6 +555,11 @@
                             "references": null,
                             "name": "timeZone",
                             "type": "string"
+                        },
+                        {
+                            "references": null,
+                            "name": "strictEmailCheck",
+                            "type": "boolean"
                         },
                         {
                             "references": null,
@@ -636,6 +646,11 @@
                         },
                         {
                             "references": null,
+                            "name": "strictEmailCheck",
+                            "type": "boolean"
+                        },
+                        {
+                            "references": null,
                             "name": "name",
                             "type": "string"
                         }
@@ -663,16 +678,6 @@
                 {
                     "inputs": [
                         {
-                            "references": "UserGroup",
-                            "name": "defaultUserGroupId",
-                            "type": "integer"
-                        },
-                        {
-                            "references": null,
-                            "name": "name",
-                            "type": "string"
-                        },
-                        {
                             "references": null,
                             "name": "firstName",
                             "type": "string"
@@ -693,8 +698,23 @@
                             "type": "string"
                         },
                         {
+                            "references": "UserGroup",
+                            "name": "defaultUserGroupId",
+                            "type": "integer"
+                        },
+                        {
                             "references": null,
                             "name": "timeZone",
+                            "type": "string"
+                        },
+                        {
+                            "references": null,
+                            "name": "strictEmailCheck",
+                            "type": "boolean"
+                        },
+                        {
+                            "references": null,
+                            "name": "name",
                             "type": "string"
                         }
                     ],
@@ -733,6 +753,54 @@
                         }
                     ],
                     "type": "GET",
+                    "public": false
+                }
+            ]
+        },
+        {
+            "path": [
+                {
+                    "references": "null",
+                    "value": "transferreceipts",
+                    "type": "string"
+                }
+            ],
+            "handlers": [
+                {
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "receiptIdList",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "processPeriodId",
+                            "type": null
+                        },
+                        {
+                            "references": "File",
+                            "name": "fileId",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "amount",
+                            "type": "number"
+                        },
+                        {
+                            "references": null,
+                            "name": "name",
+                            "type": "string"
+                        },
+                        {
+                            "references": null,
+                            "name": "insertionTime",
+                            "type": "utctime"
+                        }
+                    ],
+                    "outputs": [],
+                    "type": "POST",
                     "public": false
                 }
             ]
@@ -900,11 +968,6 @@
                             "type": "integer"
                         },
                         {
-                            "references": "ProcessPeriod",
-                            "name": "processPeriodId",
-                            "type": "integer"
-                        },
-                        {
                             "references": null,
                             "name": "amount",
                             "type": "number"
@@ -927,6 +990,11 @@
                 {
                     "inputs": [
                         {
+                            "references": null,
+                            "name": "insertionTime",
+                            "type": "utctime"
+                        },
+                        {
                             "references": "File",
                             "name": "fileId",
                             "type": "integer"
@@ -945,11 +1013,6 @@
                             "references": null,
                             "name": "name",
                             "type": "string"
-                        },
-                        {
-                            "references": null,
-                            "name": "insertionTime",
-                            "type": "utctime"
                         }
                     ],
                     "outputs": [],
@@ -1266,6 +1329,13 @@
                 },
                 {
                     "references": null,
+                    "default": false,
+                    "name": "strictEmailCheck",
+                    "type": "boolean",
+                    "optional": false
+                },
+                {
+                    "references": null,
                     "default": null,
                     "name": "name",
                     "type": "string",
@@ -1307,7 +1377,7 @@
                     "default": null,
                     "name": "processPeriodId",
                     "type": "integer",
-                    "optional": false
+                    "optional": true
                 },
                 {
                     "references": null,

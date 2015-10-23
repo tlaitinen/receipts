@@ -120,6 +120,10 @@ getUsersR  = lift $ runDB $ do
                                 "ASC"  -> orderBy [ asc (u  ^.  UserEmail) ] 
                                 "DESC" -> orderBy [ desc (u  ^.  UserEmail) ] 
                                 _      -> return ()
+                            "strictEmailCheck" -> case (FS.s_direction sjm) of 
+                                "ASC"  -> orderBy [ asc (u  ^.  UserStrictEmailCheck) ] 
+                                "DESC" -> orderBy [ desc (u  ^.  UserStrictEmailCheck) ] 
+                                _      -> return ()
                 
                             _ -> return ()
                         ) xs
@@ -165,6 +169,9 @@ getUsersR  = lift $ runDB $ do
                 "config" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
                     (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (u  ^.  UserConfig) ((val v'))
                     _        -> return ()
+                "strictEmailCheck" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
+                    (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (u  ^.  UserStrictEmailCheck) ((val v'))
+                    _        -> return ()
                 "name" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
                     (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (u  ^.  UserName) ((val v'))
                     _        -> return ()
@@ -189,7 +196,7 @@ getUsersR  = lift $ runDB $ do
                  
                 where_ $ (u ^. UserDeletedVersionId) `is` (nothing)
             else return ()
-        return (u ^. UserId, u ^. UserName, u ^. UserFirstName, u ^. UserLastName, u ^. UserOrganization, u ^. UserTimeZone, u ^. UserDefaultUserGroupId, u ^. UserEmail)
+        return (u ^. UserId, u ^. UserName, u ^. UserFirstName, u ^. UserLastName, u ^. UserOrganization, u ^. UserTimeZone, u ^. UserDefaultUserGroupId, u ^. UserEmail, u ^. UserStrictEmailCheck)
     count <- select $ do
         baseQuery False
         let countRows' = countRows
@@ -199,7 +206,7 @@ getUsersR  = lift $ runDB $ do
     return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
-                ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7), (Database.Esqueleto.Value f8)) -> A.object [
+                ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7), (Database.Esqueleto.Value f8), (Database.Esqueleto.Value f9)) -> A.object [
                     "id" .= toJSON f1,
                     "name" .= toJSON f2,
                     "firstName" .= toJSON f3,
@@ -207,7 +214,8 @@ getUsersR  = lift $ runDB $ do
                     "organization" .= toJSON f5,
                     "timeZone" .= toJSON f6,
                     "defaultUserGroupId" .= toJSON f7,
-                    "email" .= toJSON f8                                    
+                    "email" .= toJSON f8,
+                    "strictEmailCheck" .= toJSON f9                                    
                     ]
                 _ -> A.object []
             ) results)
@@ -227,6 +235,16 @@ postUsersR  = lift $ runDB $ do
     jsonBodyObj <- case jsonBody of
         A.Object o -> return o
         v -> sendResponseStatus status400 $ A.object [ "message" .= ("Expected JSON object in the request body, got: " ++ show v) ]
+    attr_strictEmailCheck <- case HML.lookup "strictEmailCheck" jsonBodyObj of 
+        Just v -> case A.fromJSON v of
+            A.Success v' -> return v'
+            A.Error err -> sendResponseStatus status400 $ A.object [
+                    "message" .= ("Could not parse value from attribute strictEmailCheck in the JSON object in request body" :: Text),
+                    "error" .= err
+                ]
+        Nothing -> sendResponseStatus status400 $ A.object [
+                "message" .= ("Expected attribute strictEmailCheck in the JSON object in request body" :: Text)
+            ]
     attr_timeZone <- case HML.lookup "timeZone" jsonBodyObj of 
         Just v -> case A.fromJSON v of
             A.Success v' -> return v'
@@ -336,6 +354,8 @@ postUsersR  = lift $ runDB $ do
                             userCurrent = Active
                     ,
                             userConfig = "{}"
+                    ,
+                            userStrictEmailCheck = attr_strictEmailCheck
                     ,
                             userName = attr_name
                     ,

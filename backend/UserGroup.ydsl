@@ -49,6 +49,7 @@ entity User {
     current Checkmark default CheckmarkActive;
 
     config Text default "{}";
+    strictEmailCheck Bool default False;
 
     unique User current, name;
     deriving Typeable;
@@ -201,7 +202,8 @@ route /users {
                u.organization,
                u.timeZone,
                u.defaultUserGroupId,
-               u.email
+               u.email,
+               u.strictEmailCheck
                from User as u
                where hasReadPerm $auth.id u.id
             order by u.name asc;
@@ -227,6 +229,7 @@ route /users {
             email              = $request.email,
             defaultUserGroupId = $request.defaultUserGroupId,
             timeZone           = $request.timeZone,
+            strictEmailCheck   = $request.strictEmailCheck,
             activeStartTime    = now()
         };
         prepareNewUser $auth.id userId;
@@ -286,6 +289,7 @@ route /users/#UserId {
             email                 = $request.email,
             defaultUserGroupId    = $request.defaultUserGroupId,
             timeZone              = $request.timeZone,
+            strictEmailCheck      = $request.strictEmailCheck,
             activeStartTime       = now()
         };
     }
