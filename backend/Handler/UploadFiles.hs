@@ -23,7 +23,8 @@ import System.IO.Temp (openTempFile)
 convert :: String -> FilePath -> FilePath -> IO Bool
 convert ext src dst = do
     let tmpDst = dst ++ "." ++ ext
-    callProcess "convert" [src, tmpDst]
+
+    callProcess "convert" $ args ++ [src, tmpDst]
     multiplePages <- doesFileExist $ dst++ "-0." ++ ext
     if multiplePages
         then renameFile (dst ++ "-0." ++ ext) dst
@@ -31,6 +32,10 @@ convert ext src dst = do
     resultExists <- doesFileExist dst
             
     return resultExists
+    where
+        args
+            | ext == "pdf" = ["-density", "150", "-trim", "-sharpen", "0x1.0" ]
+            | otherwise = []
     
 
 postUploadFilesR :: Handler Value
