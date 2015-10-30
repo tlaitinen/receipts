@@ -106,6 +106,8 @@ User json
     email Text  "default=''"
     password Text  "default=''"
     salt Text  "default=''"
+    passwordResetToken Text Maybe  
+    passwordResetValidUntil UTCTime Maybe  
     defaultUserGroupId UserGroupId  
     timeZone Text  "default='Europe/Helsinki'"
     current Checkmark  "default=True" nullable
@@ -190,6 +192,8 @@ newUser defaultUserGroupId_ name_ = User {
     userEmail = "",
     userPassword = "",
     userSalt = "",
+    userPasswordResetToken = Nothing,
+    userPasswordResetValidUntil = Nothing,
     userDefaultUserGroupId = defaultUserGroupId_,
     userTimeZone = "Europe/Helsinki",
     userCurrent = Active,

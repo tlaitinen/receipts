@@ -11,7 +11,7 @@ import Yesod.Default.Util   (addStaticContentExternal)
 import Yesod.Core.Types     (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import Handler.DB
-
+import Yesod.ReCAPTCHA
 -- | The foundation datatype for your application. This can be a good place to
 -- keep settings and values requiring initialization before your application
 -- starts running, such as database connections. Every handler will have
@@ -23,6 +23,10 @@ data App = App
     , appHttpManager :: Manager
     , appLogger      :: Logger
     }
+
+instance YesodReCAPTCHA App where
+    recaptchaPublicKey  = fmap (appRecaptchaPublicKey . appSettings) getYesod
+    recaptchaPrivateKey = fmap (appRecaptchaPrivateKey . appSettings) getYesod
 
 instance HasHttpManager App where
     getHttpManager = appHttpManager

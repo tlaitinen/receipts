@@ -10,6 +10,15 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Maybe
 import qualified  Database.Persist as P
+import qualified Yesod  as Y
+import qualified Data.List as L
+import Data.Text.Encoding (decodeASCII)
+import Network.Wai (requestHeaders)
+import Network.HTTP.Types.Header
+getIp = do
+    wr <- Y.waiRequest
+    return $ (L.find ((=="X-Real-IP") .  fst) $ requestHeaders wr)
+        >>= (Just . decodeASCII. snd)
 
 nonEmpty "" = return False
 nonEmpty _ = return True

@@ -39,10 +39,11 @@ entity User {
     email Text default "";
     password Text default "" internal;
     salt Text default "" internal;
+    
+    passwordResetToken      Maybe Text internal;
+    passwordResetValidUntil Maybe UTCTime internal;
 
     defaultUserGroupId UserGroupId;
-
-
 
     timeZone Text default "Europe/Helsinki";
 

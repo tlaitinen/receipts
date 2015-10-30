@@ -32,5 +32,6 @@ admin-password: "_env:ADMINPASSWORD:Receipts"
 max-email-size: "_env:MAXEMAILSIZE:10000000"
 smtp-address: "_env:SMTPADDRESS:127.0.0.1"
 sender-email: "_env:SENDEREMAIL:receipts@example.com"
-
+recaptcha-public-key: "_env:RECAPTCHAPUBLICKEY:xxxx"
+recaptcha-private-key: "_env:RECAPTCHAPRIVATEKEY:xxxx"
 #analytics: UA-YOURCODE

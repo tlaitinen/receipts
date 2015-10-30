@@ -33,6 +33,7 @@ library
         Handler.SetUserPassword
         Handler.File
         Handler.Home
+        Handler.Register
         Handler.Utils
         Handler.UploadFiles
         Handler.Mailgun
@@ -62,6 +63,7 @@ library
         Handler.DB.RouteProcessperiodsProcessPeriod
     build-depends:
         unordered-containers -any,
+        yesod-recaptcha -any,
         transformers -any,
         tagged -any,
         blaze-builder -any,

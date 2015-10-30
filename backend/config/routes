@@ -8,3 +8,4 @@
 /file/#FileId FileR GET
 /mailgun MailgunR POST
 /set-user-password/#UserId SetUserPasswordR POST
+/register RegisterR POST

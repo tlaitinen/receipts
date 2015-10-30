@@ -347,6 +347,10 @@ postUsersR  = lift $ runDB $ do
                     ,
                             userSalt = ""
                     ,
+                            userPasswordResetToken = Nothing
+                    ,
+                            userPasswordResetValidUntil = Nothing
+                    ,
                             userDefaultUserGroupId = attr_defaultUserGroupId
                     ,
                             userTimeZone = attr_timeZone
