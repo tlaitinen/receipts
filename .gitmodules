@@ -1,3 +1,6 @@
 [submodule "backend/yesod-recaptcha"]
 	path = backend/yesod-recaptcha
 	url = git@github.com:tlaitinen/yesod-recaptcha.git
+[submodule "backend/recaptcha-wreq"]
+	path = backend/recaptcha-wreq
+	url = git@github.com:tlaitinen/recaptcha-wreq.git

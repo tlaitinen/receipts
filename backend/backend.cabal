@@ -63,7 +63,7 @@ library
         Handler.DB.RouteProcessperiodsProcessPeriod
     build-depends:
         unordered-containers -any,
-        yesod-recaptcha -any,
+        recaptcha-wreq -any,
         transformers -any,
         tagged -any,
         blaze-builder -any,

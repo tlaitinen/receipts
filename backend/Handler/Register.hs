@@ -4,7 +4,8 @@ import Yesod.Auth
 import Import
 import Handler.DB
 import Data.Time.Clock.POSIX
-import Yesod.ReCAPTCHA
+import Network.Wreq.Session
+import RecaptchaWreq
 import Network.HTTP.Types (status400)
 import qualified Data.Aeson as A
 import Data.Aeson.TH
@@ -29,11 +30,12 @@ postRegisterR = do
             ]
         A.Success p -> return p
     ip <- getIp
-    r <- recaptchaCheck (T.unpack $ fromMaybe "" ip) "manual-challenge" (p_recaptchaResponse p)
+    secret <- fmap (appRecaptchaPrivateKey . appSettings) getYesod
+    r <- liftIO $ withSession $ \s -> verifyRecaptcha s secret (p_recaptchaResponse p) ip
     case r of
-        RecaptchaOk -> return $ object [ "success" .= True ]
-        RecaptchaError err -> sendResponseStatus status400 $ A.object [
-                "success" .= False,
-                "error" .= err
+        RecaptchaOK -> return $ A.object [
+                "success" .= True
             ]
+        RecaptchaError err -> sendResponseStatus status400 err
+        RecaptchaHttpError e -> sendResponseStatus status400 (show e)
         
