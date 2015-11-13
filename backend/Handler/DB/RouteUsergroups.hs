@@ -100,6 +100,10 @@ getUsergroupsR  = lift $ runDB $ do
                                 "ASC"  -> orderBy [ asc (ug  ^.  UserGroupEmail) ] 
                                 "DESC" -> orderBy [ desc (ug  ^.  UserGroupEmail) ] 
                                 _      -> return ()
+                            "organization" -> case (FS.s_direction sjm) of 
+                                "ASC"  -> orderBy [ asc (ug  ^.  UserGroupOrganization) ] 
+                                "DESC" -> orderBy [ desc (ug  ^.  UserGroupOrganization) ] 
+                                _      -> return ()
                             "current" -> case (FS.s_direction sjm) of 
                                 "ASC"  -> orderBy [ asc (ug  ^.  UserGroupCurrent) ] 
                                 "DESC" -> orderBy [ desc (ug  ^.  UserGroupCurrent) ] 
@@ -132,6 +136,12 @@ getUsergroupsR  = lift $ runDB $ do
                 "email" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
                     (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (ug  ^.  UserGroupEmail) ((val v'))
                     _        -> return ()
+                "organization" -> case FS.f_value fjm of
+                    Just value -> case PP.fromPathPiece value of 
+                            (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (ug  ^.  UserGroupOrganization) (just ((val v')))
+                            _        -> return ()
+                    Nothing -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (ug  ^.  UserGroupOrganization) nothing
+                           
                 "current" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
                     (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (ug  ^.  UserGroupCurrent) ((val v'))
                     _        -> return ()
@@ -157,7 +167,7 @@ getUsergroupsR  = lift $ runDB $ do
                  
                 where_ $ (ug ^. UserGroupDeletedVersionId) `is` (nothing)
             else return ()
-        return (ug ^. UserGroupId, ug ^. UserGroupCreatePeriods, ug ^. UserGroupEmail, ug ^. UserGroupCurrent, ug ^. UserGroupName)
+        return (ug ^. UserGroupId, ug ^. UserGroupCreatePeriods, ug ^. UserGroupEmail, ug ^. UserGroupOrganization, ug ^. UserGroupCurrent, ug ^. UserGroupName)
     count <- select $ do
         baseQuery False
         let countRows' = countRows
@@ -167,12 +177,13 @@ getUsergroupsR  = lift $ runDB $ do
     return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
-                ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5)) -> A.object [
+                ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6)) -> A.object [
                     "id" .= toJSON f1,
                     "createPeriods" .= toJSON f2,
                     "email" .= toJSON f3,
-                    "current" .= toJSON f4,
-                    "name" .= toJSON f5                                    
+                    "organization" .= toJSON f4,
+                    "current" .= toJSON f5,
+                    "name" .= toJSON f6                                    
                     ]
                 _ -> A.object []
             ) results)
@@ -231,6 +242,8 @@ postUsergroupsR  = lift $ runDB $ do
                             userGroupCreatePeriods = attr_createPeriods
                     ,
                             userGroupEmail = attr_email
+                    ,
+                            userGroupOrganization = Nothing
                     ,
                             userGroupCurrent = Active
                     ,

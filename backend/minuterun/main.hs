@@ -33,11 +33,7 @@ import Network.Mail.SMTP
 import Network.Mail.Mime
 import System.FilePath
 
-fmtDay :: Day -> Text
-fmtDay day = T.pack $ printf "%d.%d.%d" d m (y `mod` 100)
-    where (y,m,d) = toGregorian day
 
-mkMessage "App" "messages" "fi"
 
 minuteRun :: AppSettings -> SqlPersistT (LoggingT IO) ()
 minuteRun settings = do

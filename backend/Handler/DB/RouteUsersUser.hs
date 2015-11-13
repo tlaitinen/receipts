@@ -83,7 +83,7 @@ getUsersUserIdR p1 = lift $ runDB $ do
 
                  
             else return ()
-        return (u ^. UserId, u ^. UserFirstName, u ^. UserLastName, u ^. UserOrganization, u ^. UserAdmin, u ^. UserEmail, u ^. UserDefaultUserGroupId, u ^. UserTimeZone, u ^. UserCurrent, u ^. UserConfig, u ^. UserStrictEmailCheck, u ^. UserName)
+        return (u ^. UserId, u ^. UserFirstName, u ^. UserLastName, u ^. UserOrganization, u ^. UserAdmin, u ^. UserEmail, u ^. UserContractStartDate, u ^. UserContractEndDate, u ^. UserDefaultUserGroupId, u ^. UserTimeZone, u ^. UserCurrent, u ^. UserConfig, u ^. UserStrictEmailCheck, u ^. UserName)
     count <- select $ do
         baseQuery False
         let countRows' = countRows
@@ -93,19 +93,21 @@ getUsersUserIdR p1 = lift $ runDB $ do
     return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
-                ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7), (Database.Esqueleto.Value f8), (Database.Esqueleto.Value f9), (Database.Esqueleto.Value f10), (Database.Esqueleto.Value f11), (Database.Esqueleto.Value f12)) -> A.object [
+                ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7), (Database.Esqueleto.Value f8), (Database.Esqueleto.Value f9), (Database.Esqueleto.Value f10), (Database.Esqueleto.Value f11), (Database.Esqueleto.Value f12), (Database.Esqueleto.Value f13), (Database.Esqueleto.Value f14)) -> A.object [
                     "id" .= toJSON f1,
                     "firstName" .= toJSON f2,
                     "lastName" .= toJSON f3,
                     "organization" .= toJSON f4,
                     "admin" .= toJSON f5,
                     "email" .= toJSON f6,
-                    "defaultUserGroupId" .= toJSON f7,
-                    "timeZone" .= toJSON f8,
-                    "current" .= toJSON f9,
-                    "config" .= toJSON f10,
-                    "strictEmailCheck" .= toJSON f11,
-                    "name" .= toJSON f12                                    
+                    "contractStartDate" .= toJSON f7,
+                    "contractEndDate" .= toJSON f8,
+                    "defaultUserGroupId" .= toJSON f9,
+                    "timeZone" .= toJSON f10,
+                    "current" .= toJSON f11,
+                    "config" .= toJSON f12,
+                    "strictEmailCheck" .= toJSON f13,
+                    "name" .= toJSON f14                                    
                     ]
                 _ -> A.object []
             ) results)

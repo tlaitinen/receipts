@@ -157,6 +157,18 @@ getUsersR  = lift $ runDB $ do
                 "email" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
                     (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (u  ^.  UserEmail) ((val v'))
                     _        -> return ()
+                "contractStartDate" -> case FS.f_value fjm of
+                    Just value -> case PP.fromPathPiece value of 
+                            (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (u  ^.  UserContractStartDate) (just ((val v')))
+                            _        -> return ()
+                    Nothing -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (u  ^.  UserContractStartDate) nothing
+                           
+                "contractEndDate" -> case FS.f_value fjm of
+                    Just value -> case PP.fromPathPiece value of 
+                            (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (u  ^.  UserContractEndDate) (just ((val v')))
+                            _        -> return ()
+                    Nothing -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (u  ^.  UserContractEndDate) nothing
+                           
                 "defaultUserGroupId" -> case (FS.f_value fjm >>= PP.fromPathPiece) of 
                     (Just v') -> where_ $ defaultFilterOp (FS.f_negate fjm) (FS.f_comparison fjm) (u  ^.  UserDefaultUserGroupId) ((val v'))
                     _        -> return ()
@@ -350,6 +362,10 @@ postUsersR  = lift $ runDB $ do
                             userPasswordResetToken = Nothing
                     ,
                             userPasswordResetValidUntil = Nothing
+                    ,
+                            userContractStartDate = Nothing
+                    ,
+                            userContractEndDate = Nothing
                     ,
                             userDefaultUserGroupId = attr_defaultUserGroupId
                     ,

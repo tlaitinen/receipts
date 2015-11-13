@@ -86,6 +86,7 @@ UserGroupContent json
 UserGroup json
     createPeriods Int32  "default=1"
     email Text  "default=''"
+    organization Text Maybe  
     current Checkmark  "default=True" nullable
     name Text  
     activeId UserGroupId Maybe   default=NULL
@@ -108,6 +109,8 @@ User json
     salt Text  "default=''"
     passwordResetToken Text Maybe  
     passwordResetValidUntil UTCTime Maybe  
+    contractStartDate Day Maybe  
+    contractEndDate Day Maybe  
     defaultUserGroupId UserGroupId  
     timeZone Text  "default='Europe/Helsinki'"
     current Checkmark  "default=True" nullable
@@ -169,6 +172,7 @@ newUserGroup :: Text -> UserGroup
 newUserGroup name_ = UserGroup {
     userGroupCreatePeriods = 1,
     userGroupEmail = "",
+    userGroupOrganization = Nothing,
     userGroupCurrent = Active,
     userGroupName = name_,
     userGroupActiveId = Nothing,
@@ -194,6 +198,8 @@ newUser defaultUserGroupId_ name_ = User {
     userSalt = "",
     userPasswordResetToken = Nothing,
     userPasswordResetValidUntil = Nothing,
+    userContractStartDate = Nothing,
+    userContractEndDate = Nothing,
     userDefaultUserGroupId = defaultUserGroupId_,
     userTimeZone = "Europe/Helsinki",
     userCurrent = Active,

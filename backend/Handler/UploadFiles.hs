@@ -41,6 +41,7 @@ convert ext src dst = do
 postUploadFilesR :: Handler Value
 postUploadFilesR = do
     (Entity userId user) <- requireAuth
+
     (params, files) <- runRequestBody
     fi <- maybe notFound return $ lookup "file" files
     now <- liftIO $ getCurrentTime

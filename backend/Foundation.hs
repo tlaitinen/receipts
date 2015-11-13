@@ -1,6 +1,8 @@
 module Foundation where
 
 import Import.NoFoundation
+import qualified Data.Text as T
+import qualified Text.Printf as TP
 import Yesod.Auth
 import Yesod.Auth.HashDB hiding (UniqueUser, UserId)
 import Database.Persist.Sql (ConnectionPool, runSqlPool)
@@ -23,6 +25,11 @@ data App = App
     , appLogger      :: Logger
     }
 
+fmtDay :: Day -> Text
+fmtDay day = T.pack $ TP.printf "%d.%d.%d" d m (y `mod` 100)
+    where (y,m,d) = toGregorian day
+
+mkMessage "App" "messages" "fi"
 
 instance HasHttpManager App where
     getHttpManager = appHttpManager

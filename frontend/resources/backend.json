@@ -266,6 +266,11 @@
                         },
                         {
                             "references": null,
+                            "name": "organization",
+                            "type": "string"
+                        },
+                        {
+                            "references": null,
                             "name": "current",
                             "type": "boolean"
                         },
@@ -623,6 +628,16 @@
                             "references": null,
                             "name": "email",
                             "type": "string"
+                        },
+                        {
+                            "references": null,
+                            "name": "contractStartDate",
+                            "type": "day"
+                        },
+                        {
+                            "references": null,
+                            "name": "contractEndDate",
+                            "type": "day"
                         },
                         {
                             "references": "UserGroup",
@@ -1221,6 +1236,13 @@
                 },
                 {
                     "references": null,
+                    "default": null,
+                    "name": "organization",
+                    "type": "string",
+                    "optional": true
+                },
+                {
+                    "references": null,
                     "default": "Active",
                     "name": "current",
                     "type": "boolean",
@@ -1298,6 +1320,20 @@
                     "name": "email",
                     "type": "string",
                     "optional": false
+                },
+                {
+                    "references": null,
+                    "default": null,
+                    "name": "contractStartDate",
+                    "type": "day",
+                    "optional": true
+                },
+                {
+                    "references": null,
+                    "default": null,
+                    "name": "contractEndDate",
+                    "type": "day",
+                    "optional": true
                 },
                 {
                     "references": "UserGroup",

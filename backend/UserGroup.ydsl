@@ -18,6 +18,7 @@ entity UserGroup {
     instance of Named, Versioned, Deletable, Restricted;
     createPeriods Int32 default 1;
     email Text default "";
+    organization Maybe Text;
 
     current Checkmark default CheckmarkActive;
     unique UserGroup current, name;
@@ -42,6 +43,9 @@ entity User {
     
     passwordResetToken      Maybe Text internal;
     passwordResetValidUntil Maybe UTCTime internal;
+
+    contractStartDate       Maybe Day;
+    contractEndDate         Maybe Day;
 
     defaultUserGroupId UserGroupId;
 
