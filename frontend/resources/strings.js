@@ -28,6 +28,7 @@ function __(k,d) {
         'validationError.message' : 'Lomakkeella on virheellisiä tietoja.',
         'validationError.password' : 'Salasanat eivät täsmää.',
         'login.title' : 'Tervetuloa käyttämään paprut.fi-palvelua',
+        'login.resetPasswordLink' : 'Salasana unohtunut?',
         'login.loginTab' : 'Kirjautuminen',
         'login.registerTab' : 'Uusi käyttäjä',
         'login.waittitle' : 'Kirjautuminen käynnissä',
@@ -123,7 +124,9 @@ function __(k,d) {
         'passwordReset.successTitle' : 'Salasanan muuttaminen',
         'passwordReset.successMessage' : 'Sähköpostiosoitteeseesi on lähetetty viesti, jonka linkkiä klikkaamalla voit asettaa uuden salasanan.',
         'passwordReset.failedTitle' : 'Salasanan vaihtaminen epäonnistui',
-        'passwordReset.failedMessage' : 'Salasanan vaihtaminen epäonnistui.'
+        'passwordReset.failedMessage' : 'Salasanan vaihtaminen epäonnistui.',
+        'requestPasswordReset.title' : 'Unohtunut salasana',
+        'requestPasswordReset.submit' : 'settings.resetPassword'
     };
     var parts = k.split('.');
     if (k in strings) {

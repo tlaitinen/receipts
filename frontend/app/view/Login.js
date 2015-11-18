@@ -1,6 +1,7 @@
 Ext.define('Receipts.view.Login',{
     extend: 'Ext.tab.Panel',
     alias: 'widget.login',
+    requires: ['Receipts.view.RequestPasswordReset'],
     layout: 'fit',
     items: [
         { 
@@ -24,9 +25,34 @@ Ext.define('Receipts.view.Login',{
                     inputType:'password',
                     enableKeyEvents:true,
                     allowBlank:false
+                },
+                {
+                    xtype:'panel',
+                    style:'float:right',
+                    html: '<a href="#" >' + __('login.resetPasswordLink') + '</a>',
+                    listeners: {
+                        afterrender: function (p) {
+                            $(Ext.getDom(p.body)).find("a").click(function() {
+                                var win = new Ext.Window({
+                                    id:'requestPasswordReset',
+                                    title: __('requestPasswordReset.title'),
+                                    plain:true,
+                                    border: true,
+                                    closable:true,
+                                    draggable:true,
+                                    resizable:false,
+                                    margin: '0 0 0 0',
+                                    items: [{xtype:'requestPasswordReset'}]
+                                });
+                                win.show();
+
+                            });
+                        }
+                    }
                 }
             ],
-            buttons:[{ 
+            buttons:[
+            { 
                 text:__('login.login'),
                 name:'login'
             }]
