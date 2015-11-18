@@ -30,6 +30,7 @@ import Handler.DB.RouteReceipts
 import Handler.DB.RouteReceiptsReceipt
 import Handler.DB.RouteProcessperiods
 import Handler.DB.RouteProcessperiodsProcessPeriod
+import Handler.DB.RouteSettings
 
 import Handler.DB.Routes
 import Yesod.Core

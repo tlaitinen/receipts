@@ -2,7 +2,8 @@ Ext.define('Receipts.view.main.MainController', {
     extend: 'Ext.app.ViewController',
 
     requires: [
-        'Ext.window.MessageBox'
+        'Ext.window.MessageBox',
+        'Receipts.view.main.UserSettings'
     ],
 
     alias: 'controller.main',
@@ -67,6 +68,20 @@ Ext.define('Receipts.view.main.MainController', {
         }
         var child = tabPanel.getComponent(id);
         tabPanel.setActiveTab(child);
+    },
+    openSettings: function() {
+        var win = new Ext.Window({
+            id:'userSettings',
+            title: __('settings.title'),
+            plain:true,
+            border: false,
+            closable:true,
+            draggable:true,
+            resizable:false,
+            margin: '0 0 0 0',
+            items: [{xtype:'userSettings'}]
+        });
+        win.show();
     },
     init: function() {
         var controller = this;
@@ -146,6 +161,11 @@ Ext.define('Receipts.view.main.MainController', {
                     }).always(function() {
                         location.reload();
                     });
+                }
+            },
+            'button[name=settings]' : {
+                click: function(button) {
+                    controller.openSettings();
                 }
             }
         });

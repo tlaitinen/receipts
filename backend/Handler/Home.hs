@@ -17,6 +17,7 @@ getHomeR = do
                 "lastName" .= userLastName u,
                 "email" .= userEmail u,
                 "config" .= userConfig u,
+                "defaultUserGroupOrganization" .= (mug >>= userGroupOrganization),
                 "defaultUserGroupEmail" .= (mug >>= (Just . userGroupEmail)),
                 "validContract" .= isContractValid u today
             ]

@@ -9,25 +9,29 @@ Ext.define('Receipts.controller.Login', {
                 try {
                     var obj = JSON.parse(response.responseText)
                     if ("user" in obj) {
-                        win.close();
+                        if (win) {
+                            win.close();
+                        }
                         Receipts.GlobalState.user = obj.user;
                         try {
                             Receipts.GlobalState.user.config = JSON.parse(obj.user.config);
                         } catch (e) {
                             console.log("Warning: invalid user config: " + e);
                         }
-                        Ext.create('Ext.container.Viewport', {
-                            layout: 'fit',
-                            items: [
-                                {
-                                    xtype: 'app-main'
-                                }
+                        if (win) {
+                            Ext.create('Ext.container.Viewport', {
+                                layout: 'fit',
+                                items: [
+                            {
+                                xtype: 'app-main'
+                            }
                             ]
-                        });
-                        $("#site-title").hide();
-                        Ext.getStore('processperiods').load(function() {
-                            Receipts.GlobalState.fireEvent('login');
-                        });
+                            });
+                            $("#site-title").hide();
+                            Ext.getStore('processperiods').load(function() {
+                                Receipts.GlobalState.fireEvent('login');
+                            });
+                        }
                     }
                 } catch (e) {
                     console.log(e);
@@ -148,6 +152,9 @@ Ext.define('Receipts.controller.Login', {
     init: function() {
 
         var c = this;
+        Receipts.GlobalState.on('reloadUser', function() { 
+            c.loadUser();
+        });
         Receipts.GlobalState.on('ready', function() {
             var qs = document.location.href.split('?')[1];
             var qsVars = c.getQsVars();

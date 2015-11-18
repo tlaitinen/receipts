@@ -35,6 +35,7 @@ import qualified Data.Text as T
 import Handler.Common
 import Handler.File
 import Handler.Register
+import Handler.ResetPassword
 import Handler.SetUserPassword
 import Handler.UploadFiles
 import Handler.DB

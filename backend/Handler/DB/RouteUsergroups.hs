@@ -269,7 +269,7 @@ postUsergroupsR  = lift $ runDB $ do
         e2 <- do
     
             return $ UserGroupContent {
-                            userGroupContentUserGroupId = userDefaultUserGroupId __auth
+                            userGroupContentUserGroupId = (userDefaultUserGroupId __auth)
                     ,
                             userGroupContentFileContentId = Nothing
                     ,

@@ -29,6 +29,12 @@ Ext.define('Receipts.view.main.Main', {
             items: [
                 { xtype: 'tbfill' },
                 {
+                    text:__('maintab.settings'),
+                    xtype:'button',
+                    closable:false,
+                    name:'settings'
+                },
+                {
                     text:__('maintab.signout'),
                     xtype:'button',
                     closable:false,

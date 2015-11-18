@@ -55,6 +55,13 @@ function __(k,d) {
         'password' : 'Salasana',
         'login.login' : 'Kirjaudu sisään',
         'maintab.signout' : 'Kirjaudu ulos',
+        'maintab.settings' : 'Omat tiedot',
+        'settings.failedTitle' : 'Omien tietojen päivittäminen epäonnistui',
+        'settings.failedMessage' : 'settings.failedTitle',
+        'settings.resetPassword' : 'Lähetä linkki salasanan vaihtamiseksi',
+        'settings.title' : 'Omat tiedot',
+        'settings.update' : 'Päivitä',
+        'settings.deliveryEmail' : 'Kirjanpitäjän sähköpostiosoite',
         'receipts' : 'Tositteet',
         'instructions' : 'Ohje',
         'users' : 'Käyttäjät',
@@ -108,12 +115,15 @@ function __(k,d) {
         'amount' : 'Summa',
         'insertionTime' : 'Lisätty',
         'upload.title' : 'Tiedostojen lataus',
-        'upload.noValidContract' : 'Käyttöoikeutesi on päättynyt. Jatkaaksesi palvelun käyttöä, lähetä viesti osoitteeseen <a href="mailto:myynti@paprut.fi">myynti@paprut.fi</a>.',
+        'upload.noValidContract' : 'Käyttöoikeutesi on päättynyt. Jatkaaksesi palvelun käyttöä lähetä viesti osoitteeseen <a href="mailto:myynti@paprut.fi">myynti@paprut.fi</a>.',
         'upload.button' : 'Lisää tositteita tiputtamalla tiedostoja tähän.',
         'upload.uploading' : 'Ladataan...',
         'usergroupform.title' : 'Käyttäjäryhmän tietojen muokkaaminen',
-        'usergroupform.createPeriods' : 'Luotavien kirjanpitokuukausien lkm.'
-
+        'usergroupform.createPeriods' : 'Luotavien kirjanpitokuukausien lkm.',
+        'passwordReset.successTitle' : 'Salasanan muuttaminen',
+        'passwordReset.successMessage' : 'Sähköpostiosoitteeseesi on lähetetty viesti, jonka linkkiä klikkaamalla voit asettaa uuden salasanan.',
+        'passwordReset.failedTitle' : 'Salasanan vaihtaminen epäonnistui',
+        'passwordReset.failedMessage' : 'Salasanan vaihtaminen epäonnistui.'
     };
     var parts = k.split('.');
     if (k in strings) {

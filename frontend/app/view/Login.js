@@ -58,12 +58,14 @@ Ext.define('Receipts.view.Login',{
                 {
                     fieldLabel: __('register.email'),
                     name:'email',
-                    allowBlank:false
+                    allowBlank:false,
+                    vtype:'email'
                 },
                 {
                     fieldLabel: __('register.deliveryEmail'),
                     name:'deliveryEmail',
-                    allowBlank:false
+                    allowBlank:false,
+                    vtype:'email'
                 },
                 {
                     name:'recaptchaResponse',

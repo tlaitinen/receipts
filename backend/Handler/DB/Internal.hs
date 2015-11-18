@@ -122,6 +122,7 @@ User json
     activeEndTime UTCTime Maybe  
     deletedVersionId VersionId Maybe   default=NULL
     UniqueUser current name !force
+    UniqueUserEmail current email !force
     deriving Typeable
 Version json
     time UTCTime  

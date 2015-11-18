@@ -2,6 +2,10 @@
 module Handler.Utils where
 import Prelude
 import Database.Esqueleto
+
+import System.Random
+import Data.Text (Text)
+import qualified Data.Text as T
 import Handler.DB.Internal
 import Data.Time
 import Handler.DB.Enums
@@ -25,6 +29,15 @@ getIp = do
 
 nonEmpty "" = return False
 nonEmpty _ = return True
+
+rndString :: Int -> IO Text
+rndString len = replicateM len rndChar >>= return . T.pack
+    where
+        chars = ['0'..'9'] ++ ['a'..'z'] ++ ['A' .. 'Z']
+        rndChar = do
+            idx <- randomRIO (0, length chars - 1)
+            return $ chars !! idx
+
 
 prepareNewUser :: forall m. (MonadIO m) => UserId -> UserId -> ReaderT SqlBackend m ()
 prepareNewUser authId uId = do

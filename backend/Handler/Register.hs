@@ -6,7 +6,6 @@ import Import
 import Text.Shakespeare.Text hiding (toText)
 import Handler.DB
 import Database.Persist.Sql (toSqlKey, fromSqlKey)
-import System.Random
 import Data.Time
 import Network.Wreq.Session
 import RecaptchaWreq
@@ -18,6 +17,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import Network.Mail.SMTP (sendMail)
 import Network.Mail.Mime
+import Handler.Utils
 data Params = Params {
     p_firstName :: Text,
     p_lastName  :: Text,
@@ -27,14 +27,6 @@ data Params = Params {
     p_recaptchaResponse  :: Text
 } 
 $(deriveJSON defaultOptions{fieldLabelModifier = drop 2} ''Params)
-
-rndString :: Int -> IO Text
-rndString len = replicateM len rndChar >>= return . T.pack
-    where
-        chars = ['0'..'9'] ++ ['a'..'z'] ++ ['A' .. 'Z']
-        rndChar = do
-            idx <- randomRIO (0, length chars - 1)
-            return $ chars !! idx
 
 postRegisterR :: Handler Value
 postRegisterR = do 

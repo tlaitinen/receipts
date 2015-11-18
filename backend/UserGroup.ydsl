@@ -57,6 +57,7 @@ entity User {
     strictEmailCheck Bool default False;
 
     unique User current, name;
+    unique UserEmail current, email;
     deriving Typeable;
 }
 

@@ -9,4 +9,5 @@
 /mailgun MailgunR POST
 /set-user-password/#UserId SetUserPasswordR POST
 /set-user-password/#UserId/#Text SetUserPasswordTokenR GET POST
+/reset-password ResetPasswordR POST
 /register RegisterR POST

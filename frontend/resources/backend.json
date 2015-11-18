@@ -1120,6 +1120,54 @@
                     "public": false
                 }
             ]
+        },
+        {
+            "path": [
+                {
+                    "references": "null",
+                    "value": "settings",
+                    "type": "string"
+                }
+            ],
+            "handlers": [
+                {
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "name",
+                            "type": "string"
+                        },
+                        {
+                            "references": null,
+                            "name": "deliveryEmail",
+                            "type": "string"
+                        },
+                        {
+                            "references": null,
+                            "name": "organization",
+                            "type": "string"
+                        },
+                        {
+                            "references": "UserGroup",
+                            "name": "defaultUserGroupId",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "firstName",
+                            "type": "string"
+                        },
+                        {
+                            "references": null,
+                            "name": "lastName",
+                            "type": "string"
+                        }
+                    ],
+                    "outputs": [],
+                    "type": "POST",
+                    "public": false
+                }
+            ]
         }
     ],
     "entities": [
