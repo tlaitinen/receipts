@@ -33,7 +33,7 @@ function __(k,d) {
         'login.registerTab' : 'Uusi käyttäjä',
         'login.waittitle' : 'Kirjautuminen käynnissä',
         'failedtitle' : 'Virhe',
-        'login.failedmessage' : 'Kirjautuminen epäonnistui',
+        'login.failedmessage' : 'Kirjautuminen epäonnistui.',
         'login.resetPassword' : 'Aseta uusi salasana',
         'resetPassword.successTitle' : 'Uusi salasana asetettu',
         'resetPassword.successMessage' : 'Uuden salasanan asettaminen onnistui. Voit nyt kirjautua palveluun käyttäjätunnuksellasi (sähköpostiosoitteellasi) ja uudella salasanallasi.',
@@ -121,12 +121,15 @@ function __(k,d) {
         'upload.uploading' : 'Ladataan...',
         'usergroupform.title' : 'Käyttäjäryhmän tietojen muokkaaminen',
         'usergroupform.createPeriods' : 'Luotavien kirjanpitokuukausien lkm.',
+
         'passwordReset.successTitle' : 'Salasanan muuttaminen',
         'passwordReset.successMessage' : 'Sähköpostiosoitteeseesi on lähetetty viesti, jonka linkkiä klikkaamalla voit asettaa uuden salasanan.',
         'passwordReset.failedTitle' : 'Salasanan vaihtaminen epäonnistui',
         'passwordReset.failedMessage' : 'Salasanan vaihtaminen epäonnistui.',
         'requestPasswordReset.title' : 'Unohtunut salasana',
-        'requestPasswordReset.submit' : 'settings.resetPassword'
+        'requestPasswordReset.submit' : 'settings.resetPassword',
+        'requestPasswordReset.successTitle' : 'Unohtunutuneen salasanan vaihtaminen',
+        'requestPasswordReset.successMessage' : 'Antamaasi sähköpostiosoitteeseen on lähetetty viesti, jos sähköpostiosoite löytyy tietokannastamme. Viestissä on linkki, jota klikkaamalla voit asettaa uuden salasanan.'
     };
     var parts = k.split('.');
     if (k in strings) {

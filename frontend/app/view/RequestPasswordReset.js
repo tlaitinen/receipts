@@ -23,12 +23,12 @@ Ext.define('Receipts.view.RequestPasswordReset',{
                     click: function(button) {
                         button.up('form').submit({
                             success: function() {
-                                Ext.Msg.alert(__('passwordReset.successTitle'), __('passwordReset.successMessage'));
+                                Ext.Msg.alert(__('requestPasswordReset.successTitle'), __('requestPasswordReset.successMessage'));
                                 
                                 button.up('window').close();
                             },
                             failure: function() {
-                                Ext.Msg.alert(__('passwordReset.failedTitle'), __('passwordReset.failedMessage'));
+                                Ext.Msg.alert(__('requestPasswordReset.failedTitle'), __('requestPasswordReset.failedMessage'));
                             }
                         });
                     }
