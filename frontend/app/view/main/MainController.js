@@ -104,6 +104,13 @@ Ext.define('Receipts.view.main.MainController', {
                                 url: 'backend/db/processperiods/' + processPeriodId,
                                 method: 'POST',
                                 params: {
+                                },
+                                success: function() {
+                                    Ext.Msg.alert(__('send.successTitle'), __('send.successMessage'));
+
+                                },
+                                failure: function() {
+                                    Ext.Msg.alert(__('send.failedTitle'), __('send.failedMessage'));
                                 }
                             });
                         }

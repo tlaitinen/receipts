@@ -7,6 +7,7 @@ import Yesod.Auth
 import Data.Time (getCurrentTime)
 import qualified Data.Text as T
 import Database.Persist.Sql
+import Handler.Utils
 import qualified Settings
 import System.FilePath
 import System.Directory (renameFile, removeFile, doesFileExist)
@@ -16,7 +17,7 @@ import Handler.DB
 import Data.Aeson
 import System.Process
 import System.Exit
-import Network.HTTP.Types (status500)
+import Network.HTTP.Types (status500, status403)
 import System.IO.Temp (openTempFile)
 
 
@@ -45,6 +46,13 @@ postUploadFilesR = do
     (params, files) <- runRequestBody
     fi <- maybe notFound return $ lookup "file" files
     now <- liftIO $ getCurrentTime
+    let today = utctDay now
+    when (not $ isContractValid user today) $
+        sendResponseStatus status400 $ object [
+                "result" .= ("failed" :: Text),
+                "error" .= ("no-valid-contract" :: Text)
+            ] 
+        
     settings<- fmap appSettings getYesod
     name <- liftIO $ do
         (fp, h) <- openTempFile (appUploadDir settings) "upload"

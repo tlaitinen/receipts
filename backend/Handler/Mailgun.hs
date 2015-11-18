@@ -6,6 +6,7 @@ import Import hiding (fileContentType, fileName, joinPath, isNothing)
 import Yesod.Auth
 import Data.Time (getCurrentTime)
 import Database.Esqueleto hiding ((=.), update)
+import Handler.Utils (isContractValid)
 import qualified Data.Text as T
 import Database.Persist.Sql
 import qualified Settings
@@ -32,12 +33,13 @@ postMailgunR = do
     case (param params "From", param params "To") of
         (Just fromAddr, Just toAddr) -> runDB $ do
             let toUserName = extractUserName toAddr
+            today <- liftIO $ fmap utctDay getCurrentTime
             users <- select $ from $ \u -> do
                 where_ $ u ^. UserName `ilike` val toUserName
                 where_ $ isNothing $ u ^. UserDeletedVersionId 
                 return u
             case listToMaybe users of
-                Just user@(Entity _ u) -> if userEmail u `T.isInfixOf` fromAddr || userStrictEmailCheck u == False
+                Just user@(Entity _ u) -> if (userEmail u `T.isInfixOf` fromAddr || userStrictEmailCheck u == False) && (isContractValid u today)
                     then receiveFiles user files
                     else reject params
                 Nothing -> reject params   

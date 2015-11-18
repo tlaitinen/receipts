@@ -3,6 +3,7 @@ module Handler.Utils where
 import Prelude
 import Database.Esqueleto
 import Handler.DB.Internal
+import Data.Time
 import Handler.DB.Enums
 import Control.Monad
 import Control.Monad.Trans.Class
@@ -15,6 +16,8 @@ import qualified Data.List as L
 import Data.Text.Encoding (decodeASCII)
 import Network.Wai (requestHeaders)
 import Network.HTTP.Types.Header
+isContractValid :: User -> Day -> Bool
+isContractValid user today = liftM2 (>) (Just today) (userContractEndDate user) /= Just True && liftM2 (<) (Just today) (userContractStartDate user) /= Just True
 getIp = do
     wr <- Y.waiRequest
     return $ (L.find ((=="X-Real-IP") .  fst) $ requestHeaders wr)

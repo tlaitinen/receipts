@@ -3,7 +3,7 @@ Ext.define('Receipts.view.main.ReceiptUpload', {
     alias: 'widget.receiptupload',
     extend: 'Ext.Panel',
 
-     html: '<div name="receiptuploadDiv" class="fileUpload"><input name="receiptupload" type="file" name="files" multiple value="' + __('upload.button') + '"/>' + __('upload.button') + '</div><div name="progress"></div>',
+     html: '<div name="receiptuploadDiv" class="fileUpload"><input name="receiptupload" type="file" name="files" multiple value="' + __('upload.button') + '"/>' + (Receipts.GlobalState.user.validContract ? __('upload.button') : __('upload.noValidContract')) + '</div><div name="progress"></div>',
 
     uploadHandler: function(view, e) {
         e.preventDefault();
@@ -147,11 +147,16 @@ Ext.define('Receipts.view.main.ReceiptUpload', {
         var html = $(this.getEl().dom);
         var input = html.find("input");
         var view = this;
-        input[0].addEventListener("change", function(e) { view.uploadHandler(view, e); }, false);
-        var div =html.find("div[name=receiptuploadDiv]")[0];
-        div.addEventListener('drop', function (e) { view.uploadHandler(view, e); }, false);
-        div.addEventListener('dragover', function (e) { e.preventDefault(); $(div).addClass('hover'); return false; }, false);
-        div.addEventListener('dragleave', function (e) { e.preventDefault();  $(div).removeClass('hover'); return false; }, false);
+
+        if (Receipts.GlobalState.user.validContract) {
+            input[0].addEventListener("change", function(e) { view.uploadHandler(view, e); }, false);
+            var div =html.find("div[name=receiptuploadDiv]")[0];
+            div.addEventListener('drop', function (e) { view.uploadHandler(view, e); }, false);
+            div.addEventListener('dragover', function (e) { e.preventDefault(); $(div).addClass('hover'); return false; }, false);
+            div.addEventListener('dragleave', function (e) { e.preventDefault();  $(div).removeClass('hover'); return false; }, false);
+        } else {
+            input[0].disabled = true;
+        }
     }
 
 });

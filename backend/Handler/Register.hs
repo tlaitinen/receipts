@@ -64,7 +64,7 @@ postRegisterR = do
                             userEmail                   = p_email p,
                             userPasswordResetToken      = Just token,
                             userContractStartDate       = Just today,
-                            userContractEndDate         = Just $ addDays 14 today,
+                            userContractEndDate         = Just $ addDays 30 today,
                             userPasswordResetValidUntil = Just $ addUTCTime 3600 now
                         }
                     uId <- insert u    
