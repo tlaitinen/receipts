@@ -23,6 +23,7 @@ data Params = Params {
     p_lastName  :: Text,
     p_organization :: Text,
     p_email     :: Text,
+    p_deliveryEmail :: Text,
     p_recaptchaResponse  :: Text
 } 
 $(deriveJSON defaultOptions{fieldLabelModifier = drop 2} ''Params)
@@ -47,7 +48,7 @@ postRegisterR = do
     r <- liftIO $ withSession $ \s -> verifyRecaptcha s (appRecaptchaPrivateKey settings) (p_recaptchaResponse p) ip
     case r of
         RecaptchaOK -> runDB $ do
-            mug <- getBy $ UniqueUserGroup Active $ p_email p
+            mug <- getBy $ UniqueUserGroup Active $ p_deliveryEmail p
             if isJust mug
                 then failure $ A.String "username-unavailable"
                 else do
@@ -68,6 +69,12 @@ postRegisterR = do
                         }
                     uId <- insert u    
                     _ <- insert $ newUserGroupItem ugId uId UserGroupModeReadWrite
+                    _ <- insert $ (newUserGroupContent ugId) {
+                            userGroupContentUserContentId = Just uId
+                        }
+                    _ <- insert $ (newUserGroupContent ugId) {
+                            userGroupContentUserGroupContentId = Just ugId
+                        }
                     _ <- insert $ (newUserGroupContent $ toSqlKey 1) {
                             userGroupContentUserGroupContentId = Just ugId
                         }
@@ -94,8 +101,7 @@ postRegisterR = do
     where
         url settings uId u = T.concat [
                 appRoot settings,
-                "/reset-password.html",
-                "?userId=", T.pack $ show $ fromSqlKey uId,
+                "/?userId=", T.pack $ show $ fromSqlKey uId,
                 "&token=",
                 fromMaybe "" $ userPasswordResetToken u
             ]
