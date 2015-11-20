@@ -71,7 +71,7 @@ Ext.define('Receipts.controller.Login', {
             },
             jsonSubmit:true,
             success:function(e, f, action) {
-                Ext.Msg.alert(__('register.successTitle'), __('register.successMessage'), function() { form.reset(); });
+                Ext.Msg.alert(__('register.successTitle'), __('register.successMessage'), function() { form.reset(); grecaptcha.reset();});
             },
             failure:function(form, action) {
                 var extra = '';
@@ -79,7 +79,9 @@ Ext.define('Receipts.controller.Login', {
                     var errorCode = JSON.parse(action.response.responseText)['error'];
                     extra = ": " + __('register.' + errorCode);
                 } catch (e) {}
-                Ext.Msg.alert(__('register.failedtitle'), __('register.failedMessage') + extra);
+                Ext.Msg.alert(__('register.failedtitle'), __('register.failedMessage') + extra, function() {
+                    grecaptcha.reset();
+                });
             }
         });
     },

@@ -84,7 +84,7 @@ Ext.define('Receipts.Application', {
                                     preload:false,
                                     plugins: 'cellediting',
                                     columns: [ 
-                                        { field:'name', editor: { allowBlank:false}, flex:5 }, 
+                                        { field:'name', editor: { allowBlank:false }, flex:5 }, 
                                         { 
                                             field:'amount', 
                                             editor: {
@@ -130,7 +130,7 @@ Ext.define('Receipts.Application', {
                                         }
                                     ],
                                     columns: [ 
-                                        { field:'name', editor: { allowBlank:false}, flex:5 }, 
+                                        { field:'name', editor: { allowBlank:false }, flex:5 }, 
                                         { 
                                             field:'amount', 
                                             editor: {

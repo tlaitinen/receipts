@@ -19,6 +19,7 @@ import Network.Mail.SMTP (sendMail)
 import Network.Mail.Mime
 import Handler.Utils
 data Params = Params {
+    p_userName  :: Text,
     p_firstName :: Text,
     p_lastName  :: Text,
     p_organization :: Text,
@@ -40,17 +41,20 @@ postRegisterR = do
     r <- liftIO $ withSession $ \s -> verifyRecaptcha s (appRecaptchaPrivateKey settings) (p_recaptchaResponse p) ip
     case r of
         RecaptchaOK -> runDB $ do
-            mug <- getBy $ UniqueUserGroup Active $ p_deliveryEmail p
+            mu <- getBy $ UniqueUserEmail Active $ p_email p
+            when (isJust mu) $ failure $ A.String "email-unavailable"
+            mug <- getBy $ UniqueUserGroup Active $ p_userName p
             if isJust mug
                 then failure $ A.String "username-unavailable"
                 else do
-                    ugId <- insert $ (newUserGroup $ p_email p) {
+                    ugId <- insert $ (newUserGroup $ p_userName p) {
+                            userGroupEmail        = p_deliveryEmail p,
                             userGroupOrganization = Just $ p_organization p
                         }
                     now <- liftIO getCurrentTime
                     let today = utctDay now
                     token <- liftIO $ rndString 43
-                    let u = (newUser ugId (p_email p)) {
+                    let u = (newUser ugId (p_userName p)) {
                             userFirstName               = p_firstName p,
                             userLastName                = p_lastName p,
                             userEmail                   = p_email p,

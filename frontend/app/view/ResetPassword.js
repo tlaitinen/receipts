@@ -13,6 +13,7 @@ Ext.define('Receipts.view.ResetPassword',{
                     fieldLabel: __('login.password'),
                     name: 'password',
                     allowBlank:false,
+                    inputType:'password',
                     minLength:8
                 },
                 {

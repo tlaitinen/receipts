@@ -67,6 +67,11 @@ Ext.define('Receipts.view.Login',{
             bodyPadding:10,
             items: [
                 {
+                    fieldLabel: __('register.userName'),
+                    name: 'userName',
+                    allowBlank: false
+                },
+                {
                     fieldLabel: __('register.firstName'),
                     name: 'firstName',
                     allowBlank:false
