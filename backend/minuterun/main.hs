@@ -4,7 +4,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 import Prelude ()
 import System.IO.Temp
+import Text.Blaze.Html.Renderer.Text (renderHtml)
+import Text.Hamlet
 import Settings           
+import Data.Double.Conversion.Text as DCT
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.ByteString.Lazy as LB
@@ -19,6 +22,7 @@ import Database.Persist.Postgresql          (createPostgresqlPool, pgConnStr,
 import Control.Monad.Logger (runStdoutLoggingT, LoggingT)
 import Control.Concurrent 
 import Handler.DB
+import Handler.ProcessPeriodUtils
 import Database.Esqueleto
 import qualified Database.Esqueleto as E
 import Data.Time.Clock (getCurrentTime, addUTCTime)
@@ -29,7 +33,7 @@ import System.Exit
 import qualified Data.Map as Map
 import Data.Time
 import Codec.Archive.Zip
-import Network.Mail.SMTP
+import Network.Mail.SMTP (sendMail)
 import Network.Mail.Mime
 import System.FilePath
 
@@ -37,69 +41,8 @@ import System.FilePath
 
 minuteRun :: AppSettings -> SqlPersistT (LoggingT IO) ()
 minuteRun settings = do
-    createProcessPeriods
+    createAllProcessPeriods
     processQueuedPeriods settings
-
-
-
-periodDatesRange :: Day -> Day -> [(Day,Day)]
-periodDatesRange start end
-    | sDay > 1 = periodDatesRange next end
-    | monthEnd < end = (start, monthEnd) : periodDatesRange next end
-    | otherwise = [(start,monthEnd)]
-    where
-        (sYear, sMonth, sDay) = toGregorian start
-        next = addGregorianMonthsRollOver 1 (fromGregorian sYear sMonth 1)
-        monthEnd = fromGregorian sYear sMonth (gregorianMonthLength sYear sMonth)
-monthName :: [Text] -> Day -> Text
-monthName langs d = renderMessage (error "" :: App) langs $ case month of
-    1 -> MsgJanuary
-    2 -> MsgFebruary
-    3 -> MsgMarch
-    4 -> MsgApril
-    5 -> MsgMay
-    6 -> MsgJune
-    7 -> MsgJuly
-    8 -> MsgAugust
-    9 -> MsgSeptember
-    10 -> MsgOctober
-    11 -> MsgNovember
-    12 -> MsgDecember
-    where
-        (_, month, _) = toGregorian d 
-createProcessPeriods :: SqlPersistT (LoggingT IO) () 
-createProcessPeriods = do
-    now <- liftIO $ getCurrentTime
-    let today = utctDay now
-        (todayYear, todayMonth, _) = toGregorian today
-        firstDay periods = addGregorianMonthsRollOver (-periods)
-                                      (fromGregorian todayYear todayMonth 1)
-        
-        
-    ugs <- select $ from $ \ug -> do
-        where_ $ ug ^. UserGroupCreatePeriods >=. val 0
-        where_ $ isNothing $ ug ^. UserGroupDeletedVersionId
-        return ug        
-    forM_ ugs $ \(Entity ugId ug) -> do
-        let periods = periodDatesRange (firstDay $ fromIntegral $ userGroupCreatePeriods ug) today
-        forM_ periods $ \(fDay, lDay) -> void $ do
-            rows <- select $ from $ \pp -> do
-                where_ $ pp ^. ProcessPeriodFirstDay ==. val fDay
-                where_ $ pp ^. ProcessPeriodLastDay ==. val lDay
-                where_ $ exists $ from $ \ugc -> do
-                    where_ $ ugc ^. UserGroupContentUserGroupId ==. val ugId
-                    where_ $ ugc ^. UserGroupContentProcessPeriodContentId ==. just (pp ^. ProcessPeriodId)
-                    where_ $ isNothing $ ugc ^. UserGroupContentDeletedVersionId            
-                return $ pp ^. ProcessPeriodId
-            when (null rows) $ do
-                let
-                    (year, _, _) = toGregorian fDay
-                    name = T.concat [ monthName ["fi"] fDay, " ", T.pack $ show year ]
-                ppId <- insert $ newProcessPeriod fDay lDay name
-                _ <- insert $ (newUserGroupContent ugId) {
-                        userGroupContentProcessPeriodContentId = Just ppId
-                    }
-                return ()    
 
 packReceipts :: AppSettings -> [(Entity Receipt, Entity File)] -> IO [Archive]
 packReceipts settings receipts = pack emptyArchive receipts
@@ -112,7 +55,7 @@ packReceipts settings receipts = pack emptyArchive receipts
         pack a rs'@((Entity _ r, Entity fId f):rs) 
             | fits a f = do
                 contents <- LB.readFile $ path fId
-                let entry = toEntry (receiptPath r) (mtime f) contents
+                let entry = toEntry (take (appMaxZipEntryLength settings) $ receiptPath r) (mtime f) contents
                 pack (addEntryToArchive entry a) rs
             | otherwise = do
                 a' <- pack emptyArchive rs'
@@ -134,6 +77,7 @@ processQueuedPeriods settings = do
             where_ $ r ^. ReceiptProcessed ==. val False
             where_ $ r ^. ReceiptProcessPeriodId ==. val (Just ppId)
             where_ $ isNothing $ r ^. ReceiptDeletedVersionId
+            orderBy $ [ asc (r ^. ReceiptAmount) ]
             return (r,f)        
         archives <- liftIO $ packReceipts settings receipts    
 
@@ -148,10 +92,10 @@ processQueuedPeriods settings = do
                         else MsgMoreReceiptsEmailTitle (userGroupName ug)  firstDay lastDay partInfo
                 message = renderMessage app ["fi"] msg 
             LB.writeFile tmpPath (fromArchive a)        
-            mail <- mySimpleMail 
+            mail <- simpleMail 
                 (Address (Just $ userGroupName ug) (userGroupEmail ug))
                 (Address Nothing $ appSenderEmail settings)
-                message (LT.fromChunks [message])
+                message (textBody message receipts) (htmlBody message receipts)
                 [("application/zip", tmpPath)] 
             sendMail (appSmtpAddress settings) mail
         update $ \pp' -> do
@@ -164,12 +108,22 @@ processQueuedPeriods settings = do
             set r [ ReceiptProcessed =. val True ]
             where_ $ r ^. ReceiptId ==. val rId
     where
-        mySimpleMail to from subject plainBody attachments = do
+        textBody title receipts = LT.fromChunks $ [title, "\n\n"] ++ concat [ 
+                [ pad 8 $ DCT.toFixed 2 (receiptAmount r), 
+                  " ", receiptName r, "\n" ]
+                  | ((Entity _ r), _) <- receipts 
+            ] 
+        htmlBody :: Text -> [(Entity Receipt, Entity File)] -> LT.Text
+        htmlBody title receipts = renderHtml $ $(hamletFile "templates/receipts.hamlet") "HTML" 
+        pad x s
+            | T.length s < x = T.concat [ T.replicate (x - T.length s) " ", s ]
+            | otherwise = s 
+        mySimpleMail to from subject plain html attachments = do
             let m = ((emptyMail from) { mailTo = [to]
                                  , mailHeaders = [("Subject", subject)]
                                                       })
             m' <- addAttachments attachments m
-            return $ addPart [plainPart plainBody] m'   
+            return $ addPart [htmlPart html, plainPart plain] m'   
              
 main :: IO ()
 main = do

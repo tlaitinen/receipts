@@ -38,6 +38,7 @@ library
         Handler.Utils
         Handler.UploadFiles
         Handler.Mailgun
+        Handler.ProcessPeriodUtils
         Handler.DB
         Handler.DB.Internal
         Handler.DB.Enums
@@ -147,6 +148,7 @@ executable minuterun
         buildable: False
     main-is: main.hs
     build-depends:
+        double-conversion -any,
         text -any,
         bytestring -any,
         temporary -any,
@@ -165,7 +167,9 @@ executable minuterun
         monad-control -any,
         time -any,
         persistent -any,
-        fast-logger -any
+        fast-logger -any,
+        shakespeare -any,
+        blaze-html -any
     hs-source-dirs: minuterun
 
 executable backend

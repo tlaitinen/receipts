@@ -1,0 +1,10 @@
+<html>
+    <body>
+        <h1>#{title}
+
+        <table style="border-collapse: collapse; border: 1px solid;">
+            <tbody>
+                $forall ((Entity _ r), _) <- receipts
+                    <tr>
+                        <td style="border:1px solid; padding:3px">#{pad 5 $ DCT.toFixed 2 $ receiptAmount r}
+                        <td style="border:1px solid; padding:3px">#{receiptName r}

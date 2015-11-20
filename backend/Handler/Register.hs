@@ -17,7 +17,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import Network.Mail.SMTP (sendMail)
 import Network.Mail.Mime
-import Handler.Utils
+import Handler.ProcessPeriodUtils
 data Params = Params {
     p_userName  :: Text,
     p_firstName :: Text,
@@ -47,10 +47,12 @@ postRegisterR = do
             if isJust mug
                 then failure $ A.String "username-unavailable"
                 else do
-                    ugId <- insert $ (newUserGroup $ p_userName p) {
-                            userGroupEmail        = p_deliveryEmail p,
-                            userGroupOrganization = Just $ p_organization p
-                        }
+                    let ug = (newUserGroup $ p_userName p) {
+                                userGroupEmail        = p_deliveryEmail p,
+                                userGroupOrganization = Just $ p_organization p
+                            }
+
+                    ugId <- insert ug
                     now <- liftIO getCurrentTime
                     let today = utctDay now
                     token <- liftIO $ rndString 43
@@ -77,6 +79,7 @@ postRegisterR = do
                     _ <- insert $ (newUserGroupContent $ toSqlKey 1) {
                             userGroupContentUserContentId = Just uId
                         }
+                    createProcessPeriods (Entity ugId ug)
                     liftIO $ do
                         (plain, html) <- messageBody $ url settings uId u
                         mail <- simpleMail 

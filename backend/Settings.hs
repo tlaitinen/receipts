@@ -60,6 +60,8 @@ data AppSettings = AppSettings
     , appSenderEmail            :: Text
     , appRecaptchaPublicKey     :: Text
     , appRecaptchaPrivateKey    :: Text
+    , appMaxZipEntryLength      :: Int
+    
     }
 
 instance FromJSON AppSettings where
@@ -93,6 +95,7 @@ instance FromJSON AppSettings where
         appSenderEmail            <- o .: "sender-email"
         appRecaptchaPublicKey     <- o .: "recaptcha-public-key"
         appRecaptchaPrivateKey    <- o .: "recaptcha-private-key"
+        appMaxZipEntryLength      <- o .: "max-zip-entry-length"
 
         return AppSettings {..}
 

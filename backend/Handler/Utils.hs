@@ -20,6 +20,9 @@ import qualified Data.List as L
 import Data.Text.Encoding (decodeASCII)
 import Network.Wai (requestHeaders)
 import Network.HTTP.Types.Header
+
+
+
 isContractValid :: User -> Day -> Bool
 isContractValid user today = liftM2 (>) (Just today) (userContractEndDate user) /= Just True && liftM2 (<) (Just today) (userContractStartDate user) /= Just True
 getIp = do

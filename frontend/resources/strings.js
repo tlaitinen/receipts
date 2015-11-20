@@ -36,7 +36,7 @@ function __(k,d) {
         'login.failedmessage' : 'Kirjautuminen epäonnistui.',
         'login.resetPassword' : 'Aseta uusi salasana',
         'resetPassword.successTitle' : 'Uusi salasana asetettu',
-        'resetPassword.successMessage' : 'Uuden salasanan asettaminen onnistui. Voit nyt kirjautua palveluun käyttäjätunnuksellasi (sähköpostiosoitteellasi) ja uudella salasanallasi.',
+        'resetPassword.successMessage' : 'Uuden salasanan asettaminen onnistui. Voit nyt kirjautua palveluun käyttäjätunnuksellasi ja uudella salasanallasi.',
         'register.register' : 'Aloita 30 päivän kokeilujakso',
         'register.waitTitle' : 'Rekisteröityminen käynnissä.',
         'register.userName' : 'Käyttäjänimi',
