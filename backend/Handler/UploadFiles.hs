@@ -95,7 +95,7 @@ postUploadFilesR = do
                 when (not success) $ sendResponseStatus status500 $ object [
                         "result" .= ("failed" :: Text)
                     ]
-                liftIO $ removeFile name
+                liftIO $ renameFile name (name' ++ "-original")
                 update fileId' [ FileContentType =. "application/pdf" ]
             else liftIO $ renameFile name name' 
 
