@@ -35,7 +35,8 @@ convert ext src dst = do
     return resultExists
     where
         args
-            | ext == "pdf" = ["-density", "150", "-trim", "-sharpen", "0x1.0" ]
+            | ext == "pdf" = ["-density", "150", "-compress", "jpeg", "-quality", "80" ]
+            | ext == "jpeg" = [ "-quality", "80" ]
             | otherwise = []
     
 
@@ -106,8 +107,7 @@ postUploadFilesR = do
                     ]
                 liftIO $ renameFile name (name' ++ "-original")
                 update fileId' [ FileContentType =. "application/pdf" ]
-            else liftIO $ renameFile name name' 
-
+            else liftIO $ renameFile name name'
         return (fileId, extraFields)
     return $ object $ [
             "result" .= ("ok" :: Text),
