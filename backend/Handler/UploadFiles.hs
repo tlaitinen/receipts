@@ -7,6 +7,7 @@ import Yesod.Auth
 import Data.Time (getCurrentTime)
 import qualified Data.Text as T
 import Database.Persist.Sql
+import Handler.Utils
 import qualified Settings
 import System.FilePath
 import System.Directory (renameFile, removeFile, doesFileExist)
@@ -34,16 +35,19 @@ convert ext src dst = do
     return resultExists
     where
         args
-            | ext == "pdf" = ["-density", "150", "-trim", "-sharpen", "0x1.0" ]
+            | ext == "pdf" = ["-density", "150", "-compress", "jpeg", "-quality", "80" ]
+            | ext == "jpeg" = [ "-quality", "80" ]
             | otherwise = []
     
 
 postUploadFilesR :: Handler Value
 postUploadFilesR = do
     (Entity userId user) <- requireAuth
+
     (params, files) <- runRequestBody
     fi <- maybe notFound return $ lookup "file" files
     now <- liftIO $ getCurrentTime
+        
     settings<- fmap appSettings getYesod
     name <- liftIO $ do
         (fp, h) <- openTempFile (appUploadDir settings) "upload"
@@ -95,10 +99,9 @@ postUploadFilesR = do
                 when (not success) $ sendResponseStatus status500 $ object [
                         "result" .= ("failed" :: Text)
                     ]
-                liftIO $ renameFile name (name' ++ "-original")
+                liftIO $ renameFile name (name' ++ "-original")
                 update fileId' [ FileContentType =. "application/pdf" ]
-            else liftIO $ renameFile name name' 
-
+            else liftIO $ renameFile name name'
         return (fileId, extraFields)
     return $ object $ [
             "result" .= ("ok" :: Text),
