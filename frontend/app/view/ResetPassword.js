@@ -21,7 +21,7 @@ Ext.define('Receipts.view.ResetPassword',{
                     name : 'passwordAgain',
                     inputType:'password',
                     enableKeyEvents:true,
-                    allowBlank:false,
+                    allowBlank:false
                 }
             ],
             buttons:[{ 
