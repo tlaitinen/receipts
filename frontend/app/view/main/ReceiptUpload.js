@@ -3,7 +3,7 @@ Ext.define('Receipts.view.main.ReceiptUpload', {
     alias: 'widget.receiptupload',
     extend: 'Ext.Panel',
 
-     html: '<div name="receiptuploadDiv" class="fileUpload"><input name="receiptupload" type="file" name="files" multiple value="' + __('upload.button') + '"/>' + (Receipts.GlobalState.user.validContract ? __('upload.button') : __('upload.noValidContract')) + '</div><div name="progress"></div>',
+     html: '',
 
     uploadHandler: function(view, e) {
         e.preventDefault();
@@ -141,7 +141,10 @@ Ext.define('Receipts.view.main.ReceiptUpload', {
         }        
 
     },
-
+    initComponent: function() {
+        this.update('<div name="receiptuploadDiv" class="fileUpload"><input name="receiptupload" type="file" name="files" multiple value="' + __('upload.button') + '"/>' + (Receipts.GlobalState.user.validContract ? __('upload.button') : __('upload.noValidContract')) + '</div><div name="progress"></div>');
+        this.callParent(arguments);
+    },
     onRender: function(ct) {
         this.callParent(arguments);
         var html = $(this.getEl().dom);
