@@ -85,29 +85,27 @@ getUsergroupcontentsR  = lift $ runDB $ do
         let ugcId' = ugc ^. UserGroupContentId
         where_ (hasReadPerm (val authId) (ugc ^. UserGroupContentUserGroupId))
 
-        _ <- if limitOffsetOrder
-            then do 
-                offset 0
-                limit 10000
-                case defaultSortJson of 
-                    Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
-                            "userGroupName" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (ug  ^.  UserGroupName) ] 
-                                "DESC" -> orderBy [ desc (ug  ^.  UserGroupName) ] 
-                                _      -> return ()
-                
-                            _ -> return ()
-                        ) xs
-                    Nothing -> orderBy [  ]
+        _ <- when limitOffsetOrder $ do
+            offset 0
+            limit 10000
+            case defaultSortJson of 
+                Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
+                        "userGroupName" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (ug  ^.  UserGroupName) ] 
+                            "DESC" -> orderBy [ desc (ug  ^.  UserGroupName) ] 
+                            _      -> return ()
+            
+                        _ -> return ()
+                    ) xs
+                Nothing -> orderBy [  ]
 
-                case defaultOffset of
-                    Just o -> offset o
-                    Nothing -> return ()
-                case defaultLimit of
-                    Just l -> limit (min 10000 l)
-                    Nothing -> return ()
+            case defaultOffset of
+                Just o -> offset o
+                Nothing -> return ()
+            case defaultLimit of
+                Just l -> limit (min 10000 l)
+                Nothing -> return ()
                  
-            else return ()
         case defaultFilterJson of 
             Just xs -> mapM_ (\fjm -> case FS.f_field fjm of
                 "id" -> case (FS.f_value fjm >>= PP.fromPathPiece)  of 
@@ -180,7 +178,7 @@ getUsergroupcontentsR  = lift $ runDB $ do
         orderBy []
         return $ (countRows' :: SqlExpr (Database.Esqueleto.Value Int))
     results <- select $ baseQuery True
-    return $ A.object [
+    (return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
                 ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2)) -> A.object [
@@ -189,4 +187,4 @@ getUsergroupcontentsR  = lift $ runDB $ do
                     ]
                 _ -> A.object []
             ) results)
-       ]
+       ])

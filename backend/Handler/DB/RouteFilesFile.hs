@@ -75,14 +75,12 @@ getFilesFileIdR p1 = lift $ runDB $ do
         let fId' = f ^. FileId
         where_ (((f ^. FileId) ==. (val p1)) &&. (hasReadPerm (val authId) (f ^. FileId)))
 
-        _ <- if limitOffsetOrder
-            then do 
-                offset 0
-                limit 10000
-                orderBy [  ]
+        _ <- when limitOffsetOrder $ do
+            offset 0
+            limit 10000
+            orderBy [  ]
 
                  
-            else return ()
         return (f ^. FileId, f ^. FileContentType, f ^. FileSize, f ^. FilePreviewOfFileId, f ^. FileName, f ^. FileInsertionTime, f ^. FileInsertedByUserId)
     count <- select $ do
         baseQuery False
@@ -90,7 +88,7 @@ getFilesFileIdR p1 = lift $ runDB $ do
         orderBy []
         return $ (countRows' :: SqlExpr (Database.Esqueleto.Value Int))
     results <- select $ baseQuery True
-    return $ A.object [
+    (return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
                 ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7)) -> A.object [
@@ -104,7 +102,7 @@ getFilesFileIdR p1 = lift $ runDB $ do
                     ]
                 _ -> A.object []
             ) results)
-       ]
+       ])
 putFilesFileIdR :: forall master. (
     YesodAuthPersist master,
     AuthEntity master ~ User,

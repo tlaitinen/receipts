@@ -75,14 +75,12 @@ getUsersUserIdR p1 = lift $ runDB $ do
         let uId' = u ^. UserId
         where_ (((u ^. UserId) ==. (val p1)) &&. (hasReadPerm (val authId) (u ^. UserId)))
 
-        _ <- if limitOffsetOrder
-            then do 
-                offset 0
-                limit 10000
-                orderBy [  ]
+        _ <- when limitOffsetOrder $ do
+            offset 0
+            limit 10000
+            orderBy [  ]
 
                  
-            else return ()
         return (u ^. UserId, u ^. UserFirstName, u ^. UserLastName, u ^. UserOrganization, u ^. UserAdmin, u ^. UserEmail, u ^. UserContractStartDate, u ^. UserContractEndDate, u ^. UserDefaultUserGroupId, u ^. UserTimeZone, u ^. UserCurrent, u ^. UserConfig, u ^. UserStrictEmailCheck, u ^. UserName)
     count <- select $ do
         baseQuery False
@@ -90,7 +88,7 @@ getUsersUserIdR p1 = lift $ runDB $ do
         orderBy []
         return $ (countRows' :: SqlExpr (Database.Esqueleto.Value Int))
     results <- select $ baseQuery True
-    return $ A.object [
+    (return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
                 ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7), (Database.Esqueleto.Value f8), (Database.Esqueleto.Value f9), (Database.Esqueleto.Value f10), (Database.Esqueleto.Value f11), (Database.Esqueleto.Value f12), (Database.Esqueleto.Value f13), (Database.Esqueleto.Value f14)) -> A.object [
@@ -111,7 +109,7 @@ getUsersUserIdR p1 = lift $ runDB $ do
                     ]
                 _ -> A.object []
             ) results)
-       ]
+       ])
 deleteUsersUserIdR :: forall master. (
     YesodAuthPersist master,
     AuthEntity master ~ User,
@@ -124,7 +122,7 @@ deleteUsersUserIdR p1 = lift $ runDB $ do
     _ <- do
         result <- select $ from $ \(u ) -> do
             let uId' = u ^. UserId
-            where_ (((u ^. UserId) ==. (val p1)) &&. (((u ^. UserId) !=. (val authId)) &&. (hasWritePerm (val authId) (u ^. UserId))))
+            where_ ((((u ^. UserId) ==. (val p1)) &&. ((u ^. UserId) !=. (val authId))) &&. (hasWritePerm (val authId) (u ^. UserId)))
 
             limit 1
             return u

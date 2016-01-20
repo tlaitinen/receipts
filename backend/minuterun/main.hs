@@ -51,11 +51,14 @@ packReceipts settings receipts = pack emptyArchive receipts
         fits a f = used a + fromIntegral (fileSize f) < appMaxEmailSize settings
         path fId = joinPath [ appUploadDir settings, show $ fromSqlKey fId ]
         mtime = floor . utcTimeToPOSIXSeconds . fileInsertionTime
-        receiptPath r = T.unpack $ T.concat [ receiptName r, "_", T.pack $ show $ receiptAmount r, ".pdf" ]
+        shortenName x = T.pack $ take (appMaxZipEntryLength settings - 11) (T.unpack x)
+
+        receiptPath r = T.unpack $ T.concat [ shortenName (receiptName r), 
+                                                "_", T.pack $ show $ receiptAmount r, ".pdf" ]
         pack a rs'@((Entity _ r, Entity fId f):rs) 
             | fits a f = do
                 contents <- LB.readFile $ path fId
-                let entry = toEntry (take (appMaxZipEntryLength settings) $ receiptPath r) (mtime f) contents
+                let entry = toEntry (receiptPath r) (mtime f) contents
                 pack (addEntryToArchive entry a) rs
             | otherwise = do
                 a' <- pack emptyArchive rs'

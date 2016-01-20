@@ -135,6 +135,7 @@ library
         process -any,
         async -any,
         network -any
+    cpp-options: -DFromJSON_Day -DToJSON_Day
     extensions: TemplateHaskell QuasiQuotes OverloadedStrings
                 NoImplicitPrelude CPP MultiParamTypeClasses TypeFamilies GADTs
                 GeneralizedNewtypeDeriving FlexibleContexts EmptyDataDecls

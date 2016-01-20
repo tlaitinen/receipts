@@ -88,53 +88,51 @@ getReceiptsR  = lift $ runDB $ do
         let rId' = r ^. ReceiptId
         where_ ((hasReadPerm (val authId) (r ^. ReceiptId)) &&. ((r ^. ReceiptDeletedVersionId) `is` (nothing)))
 
-        _ <- if limitOffsetOrder
-            then do 
-                offset 0
-                limit 10000
-                case defaultSortJson of 
-                    Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
-                            "fileId" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (r  ^.  ReceiptFileId) ] 
-                                "DESC" -> orderBy [ desc (r  ^.  ReceiptFileId) ] 
-                                _      -> return ()
-                            "processPeriodId" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (r  ^.  ReceiptProcessPeriodId) ] 
-                                "DESC" -> orderBy [ desc (r  ^.  ReceiptProcessPeriodId) ] 
-                                _      -> return ()
-                            "amount" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (r  ^.  ReceiptAmount) ] 
-                                "DESC" -> orderBy [ desc (r  ^.  ReceiptAmount) ] 
-                                _      -> return ()
-                            "processed" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (r  ^.  ReceiptProcessed) ] 
-                                "DESC" -> orderBy [ desc (r  ^.  ReceiptProcessed) ] 
-                                _      -> return ()
-                            "name" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (r  ^.  ReceiptName) ] 
-                                "DESC" -> orderBy [ desc (r  ^.  ReceiptName) ] 
-                                _      -> return ()
-                            "insertionTime" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (r  ^.  ReceiptInsertionTime) ] 
-                                "DESC" -> orderBy [ desc (r  ^.  ReceiptInsertionTime) ] 
-                                _      -> return ()
-                            "insertedByUserId" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (r  ^.  ReceiptInsertedByUserId) ] 
-                                "DESC" -> orderBy [ desc (r  ^.  ReceiptInsertedByUserId) ] 
-                                _      -> return ()
-                
-                            _ -> return ()
-                        ) xs
-                    Nothing -> orderBy [ asc (r ^. ReceiptName) ]
+        _ <- when limitOffsetOrder $ do
+            offset 0
+            limit 10000
+            case defaultSortJson of 
+                Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
+                        "fileId" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (r  ^.  ReceiptFileId) ] 
+                            "DESC" -> orderBy [ desc (r  ^.  ReceiptFileId) ] 
+                            _      -> return ()
+                        "processPeriodId" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (r  ^.  ReceiptProcessPeriodId) ] 
+                            "DESC" -> orderBy [ desc (r  ^.  ReceiptProcessPeriodId) ] 
+                            _      -> return ()
+                        "amount" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (r  ^.  ReceiptAmount) ] 
+                            "DESC" -> orderBy [ desc (r  ^.  ReceiptAmount) ] 
+                            _      -> return ()
+                        "processed" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (r  ^.  ReceiptProcessed) ] 
+                            "DESC" -> orderBy [ desc (r  ^.  ReceiptProcessed) ] 
+                            _      -> return ()
+                        "name" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (r  ^.  ReceiptName) ] 
+                            "DESC" -> orderBy [ desc (r  ^.  ReceiptName) ] 
+                            _      -> return ()
+                        "insertionTime" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (r  ^.  ReceiptInsertionTime) ] 
+                            "DESC" -> orderBy [ desc (r  ^.  ReceiptInsertionTime) ] 
+                            _      -> return ()
+                        "insertedByUserId" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (r  ^.  ReceiptInsertedByUserId) ] 
+                            "DESC" -> orderBy [ desc (r  ^.  ReceiptInsertedByUserId) ] 
+                            _      -> return ()
+            
+                        _ -> return ()
+                    ) xs
+                Nothing -> orderBy [ asc (r ^. ReceiptName) ]
 
-                case defaultOffset of
-                    Just o -> offset o
-                    Nothing -> return ()
-                case defaultLimit of
-                    Just l -> limit (min 10000 l)
-                    Nothing -> return ()
+            case defaultOffset of
+                Just o -> offset o
+                Nothing -> return ()
+            case defaultLimit of
+                Just l -> limit (min 10000 l)
+                Nothing -> return ()
                  
-            else return ()
         case defaultFilterJson of 
             Just xs -> mapM_ (\fjm -> case FS.f_field fjm of
                 "id" -> case (FS.f_value fjm >>= PP.fromPathPiece)  of 
@@ -234,7 +232,7 @@ getReceiptsR  = lift $ runDB $ do
         case FS.getDefaultFilter filterParam_query defaultFilterJson "query" of
             Just localParam -> do 
                 
-                where_ $ (r ^. ReceiptName) `ilike` (((val "%")) ++. (((val (localParam :: Text))) ++. ((val "%"))))
+                where_ $ (r ^. ReceiptName) `ilike` ((((val "%")) ++. ((val (localParam :: Text)))) ++. ((val "%")))
             Nothing -> return ()
         if FS.hasDefaultFilter filterParam_hideDeleted defaultFilterJson "hideDeleted" 
             then do 
@@ -253,7 +251,7 @@ getReceiptsR  = lift $ runDB $ do
         orderBy []
         return $ (countRows' :: SqlExpr (Database.Esqueleto.Value Int))
     results <- select $ baseQuery True
-    return $ A.object [
+    (return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
                 ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7), (Database.Esqueleto.Value f8), (Database.Esqueleto.Value f9)) -> A.object [
@@ -269,7 +267,7 @@ getReceiptsR  = lift $ runDB $ do
                     ]
                 _ -> A.object []
             ) results)
-       ]
+       ])
 postReceiptsR :: forall master. (
     YesodAuthPersist master,
     AuthEntity master ~ User,

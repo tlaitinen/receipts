@@ -84,45 +84,43 @@ getProcessperiodsR  = lift $ runDB $ do
         let ppId' = pp ^. ProcessPeriodId
         where_ (hasReadPerm (val authId) (pp ^. ProcessPeriodId))
 
-        _ <- if limitOffsetOrder
-            then do 
-                offset 0
-                limit 10000
-                case defaultSortJson of 
-                    Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
-                            "firstDay" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodFirstDay) ] 
-                                "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodFirstDay) ] 
-                                _      -> return ()
-                            "lastDay" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodLastDay) ] 
-                                "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodLastDay) ] 
-                                _      -> return ()
-                            "queued" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodQueued) ] 
-                                "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodQueued) ] 
-                                _      -> return ()
-                            "processed" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodProcessed) ] 
-                                "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodProcessed) ] 
-                                _      -> return ()
-                            "name" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodName) ] 
-                                "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodName) ] 
-                                _      -> return ()
-                
-                            _ -> return ()
-                        ) xs
-                    Nothing -> orderBy [ desc (pp ^. ProcessPeriodFirstDay) ]
+        _ <- when limitOffsetOrder $ do
+            offset 0
+            limit 10000
+            case defaultSortJson of 
+                Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
+                        "firstDay" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodFirstDay) ] 
+                            "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodFirstDay) ] 
+                            _      -> return ()
+                        "lastDay" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodLastDay) ] 
+                            "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodLastDay) ] 
+                            _      -> return ()
+                        "queued" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodQueued) ] 
+                            "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodQueued) ] 
+                            _      -> return ()
+                        "processed" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodProcessed) ] 
+                            "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodProcessed) ] 
+                            _      -> return ()
+                        "name" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (pp  ^.  ProcessPeriodName) ] 
+                            "DESC" -> orderBy [ desc (pp  ^.  ProcessPeriodName) ] 
+                            _      -> return ()
+            
+                        _ -> return ()
+                    ) xs
+                Nothing -> orderBy [ desc (pp ^. ProcessPeriodFirstDay) ]
 
-                case defaultOffset of
-                    Just o -> offset o
-                    Nothing -> return ()
-                case defaultLimit of
-                    Just l -> limit (min 10000 l)
-                    Nothing -> return ()
+            case defaultOffset of
+                Just o -> offset o
+                Nothing -> return ()
+            case defaultLimit of
+                Just l -> limit (min 10000 l)
+                Nothing -> return ()
                  
-            else return ()
         case defaultFilterJson of 
             Just xs -> mapM_ (\fjm -> case FS.f_field fjm of
                 "id" -> case (FS.f_value fjm >>= PP.fromPathPiece)  of 
@@ -150,7 +148,7 @@ getProcessperiodsR  = lift $ runDB $ do
         case FS.getDefaultFilter filterParam_query defaultFilterJson "query" of
             Just localParam -> do 
                 
-                where_ $ (pp ^. ProcessPeriodName) `ilike` (((val "%")) ++. (((val (localParam :: Text))) ++. ((val "%"))))
+                where_ $ (pp ^. ProcessPeriodName) `ilike` ((((val "%")) ++. ((val (localParam :: Text)))) ++. ((val "%")))
             Nothing -> return ()
         return (pp ^. ProcessPeriodId, pp ^. ProcessPeriodFirstDay, pp ^. ProcessPeriodLastDay, pp ^. ProcessPeriodQueued, pp ^. ProcessPeriodProcessed, pp ^. ProcessPeriodName)
     count <- select $ do
@@ -159,7 +157,7 @@ getProcessperiodsR  = lift $ runDB $ do
         orderBy []
         return $ (countRows' :: SqlExpr (Database.Esqueleto.Value Int))
     results <- select $ baseQuery True
-    return $ A.object [
+    (return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
                 ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6)) -> A.object [
@@ -172,4 +170,4 @@ getProcessperiodsR  = lift $ runDB $ do
                     ]
                 _ -> A.object []
             ) results)
-       ]
+       ])

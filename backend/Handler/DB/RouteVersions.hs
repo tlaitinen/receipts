@@ -81,33 +81,31 @@ getVersionsR  = lift $ runDB $ do
         let vId' = v ^. VersionId
         where_ ((v ^. VersionUserId) ==. (val authId))
 
-        _ <- if limitOffsetOrder
-            then do 
-                offset 0
-                limit 10000
-                case defaultSortJson of 
-                    Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
-                            "time" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (v  ^.  VersionTime) ] 
-                                "DESC" -> orderBy [ desc (v  ^.  VersionTime) ] 
-                                _      -> return ()
-                            "userId" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (v  ^.  VersionUserId) ] 
-                                "DESC" -> orderBy [ desc (v  ^.  VersionUserId) ] 
-                                _      -> return ()
-                
-                            _ -> return ()
-                        ) xs
-                    Nothing -> orderBy [ desc (v ^. VersionTime) ]
+        _ <- when limitOffsetOrder $ do
+            offset 0
+            limit 10000
+            case defaultSortJson of 
+                Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
+                        "time" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (v  ^.  VersionTime) ] 
+                            "DESC" -> orderBy [ desc (v  ^.  VersionTime) ] 
+                            _      -> return ()
+                        "userId" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (v  ^.  VersionUserId) ] 
+                            "DESC" -> orderBy [ desc (v  ^.  VersionUserId) ] 
+                            _      -> return ()
+            
+                        _ -> return ()
+                    ) xs
+                Nothing -> orderBy [ desc (v ^. VersionTime) ]
 
-                case defaultOffset of
-                    Just o -> offset o
-                    Nothing -> return ()
-                case defaultLimit of
-                    Just l -> limit (min 10000 l)
-                    Nothing -> return ()
+            case defaultOffset of
+                Just o -> offset o
+                Nothing -> return ()
+            case defaultLimit of
+                Just l -> limit (min 10000 l)
+                Nothing -> return ()
                  
-            else return ()
         case defaultFilterJson of 
             Just xs -> mapM_ (\fjm -> case FS.f_field fjm of
                 "id" -> case (FS.f_value fjm >>= PP.fromPathPiece)  of 
@@ -130,7 +128,7 @@ getVersionsR  = lift $ runDB $ do
         orderBy []
         return $ (countRows' :: SqlExpr (Database.Esqueleto.Value Int))
     results <- select $ baseQuery True
-    return $ A.object [
+    (return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
                 ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3)) -> A.object [
@@ -140,4 +138,4 @@ getVersionsR  = lift $ runDB $ do
                     ]
                 _ -> A.object []
             ) results)
-       ]
+       ])

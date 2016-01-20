@@ -86,45 +86,43 @@ getUsergroupsR  = lift $ runDB $ do
         let ugId' = ug ^. UserGroupId
         where_ (hasReadPerm (val authId) (ug ^. UserGroupId))
 
-        _ <- if limitOffsetOrder
-            then do 
-                offset 0
-                limit 10000
-                case defaultSortJson of 
-                    Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
-                            "createPeriods" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (ug  ^.  UserGroupCreatePeriods) ] 
-                                "DESC" -> orderBy [ desc (ug  ^.  UserGroupCreatePeriods) ] 
-                                _      -> return ()
-                            "email" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (ug  ^.  UserGroupEmail) ] 
-                                "DESC" -> orderBy [ desc (ug  ^.  UserGroupEmail) ] 
-                                _      -> return ()
-                            "organization" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (ug  ^.  UserGroupOrganization) ] 
-                                "DESC" -> orderBy [ desc (ug  ^.  UserGroupOrganization) ] 
-                                _      -> return ()
-                            "current" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (ug  ^.  UserGroupCurrent) ] 
-                                "DESC" -> orderBy [ desc (ug  ^.  UserGroupCurrent) ] 
-                                _      -> return ()
-                            "name" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (ug  ^.  UserGroupName) ] 
-                                "DESC" -> orderBy [ desc (ug  ^.  UserGroupName) ] 
-                                _      -> return ()
-                
-                            _ -> return ()
-                        ) xs
-                    Nothing -> orderBy [ asc (ug ^. UserGroupName) ]
+        _ <- when limitOffsetOrder $ do
+            offset 0
+            limit 10000
+            case defaultSortJson of 
+                Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
+                        "createPeriods" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (ug  ^.  UserGroupCreatePeriods) ] 
+                            "DESC" -> orderBy [ desc (ug  ^.  UserGroupCreatePeriods) ] 
+                            _      -> return ()
+                        "email" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (ug  ^.  UserGroupEmail) ] 
+                            "DESC" -> orderBy [ desc (ug  ^.  UserGroupEmail) ] 
+                            _      -> return ()
+                        "organization" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (ug  ^.  UserGroupOrganization) ] 
+                            "DESC" -> orderBy [ desc (ug  ^.  UserGroupOrganization) ] 
+                            _      -> return ()
+                        "current" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (ug  ^.  UserGroupCurrent) ] 
+                            "DESC" -> orderBy [ desc (ug  ^.  UserGroupCurrent) ] 
+                            _      -> return ()
+                        "name" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (ug  ^.  UserGroupName) ] 
+                            "DESC" -> orderBy [ desc (ug  ^.  UserGroupName) ] 
+                            _      -> return ()
+            
+                        _ -> return ()
+                    ) xs
+                Nothing -> orderBy [ asc (ug ^. UserGroupName) ]
 
-                case defaultOffset of
-                    Just o -> offset o
-                    Nothing -> return ()
-                case defaultLimit of
-                    Just l -> limit (min 10000 l)
-                    Nothing -> return ()
+            case defaultOffset of
+                Just o -> offset o
+                Nothing -> return ()
+            case defaultLimit of
+                Just l -> limit (min 10000 l)
+                Nothing -> return ()
                  
-            else return ()
         case defaultFilterJson of 
             Just xs -> mapM_ (\fjm -> case FS.f_field fjm of
                 "id" -> case (FS.f_value fjm >>= PP.fromPathPiece)  of 
@@ -155,7 +153,7 @@ getUsergroupsR  = lift $ runDB $ do
         case FS.getDefaultFilter filterParam_query defaultFilterJson "query" of
             Just localParam -> do 
                 
-                where_ $ (ug ^. UserGroupName) `ilike` (((val "%")) ++. (((val (localParam :: Text))) ++. ((val "%"))))
+                where_ $ (ug ^. UserGroupName) `ilike` ((((val "%")) ++. ((val (localParam :: Text)))) ++. ((val "%")))
             Nothing -> return ()
         case FS.getDefaultFilter filterParam_musicPieceIdList defaultFilterJson "musicPieceIdList" of
             Just localParam -> do 
@@ -174,7 +172,7 @@ getUsergroupsR  = lift $ runDB $ do
         orderBy []
         return $ (countRows' :: SqlExpr (Database.Esqueleto.Value Int))
     results <- select $ baseQuery True
-    return $ A.object [
+    (return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
                 ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6)) -> A.object [
@@ -187,7 +185,7 @@ getUsergroupsR  = lift $ runDB $ do
                     ]
                 _ -> A.object []
             ) results)
-       ]
+       ])
 postUsergroupsR :: forall master. (
     YesodAuthPersist master,
     AuthEntity master ~ User,

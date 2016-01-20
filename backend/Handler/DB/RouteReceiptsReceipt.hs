@@ -75,14 +75,12 @@ getReceiptsReceiptIdR p1 = lift $ runDB $ do
         let rId' = r ^. ReceiptId
         where_ (((r ^. ReceiptId) ==. (val p1)) &&. (hasReadPerm (val authId) (r ^. ReceiptId)))
 
-        _ <- if limitOffsetOrder
-            then do 
-                offset 0
-                limit 10000
-                orderBy [  ]
+        _ <- when limitOffsetOrder $ do
+            offset 0
+            limit 10000
+            orderBy [  ]
 
                  
-            else return ()
         return (r ^. ReceiptId, r ^. ReceiptFileId, r ^. ReceiptProcessPeriodId, r ^. ReceiptAmount, r ^. ReceiptProcessed, r ^. ReceiptName, r ^. ReceiptInsertionTime, r ^. ReceiptInsertedByUserId)
     count <- select $ do
         baseQuery False
@@ -90,7 +88,7 @@ getReceiptsReceiptIdR p1 = lift $ runDB $ do
         orderBy []
         return $ (countRows' :: SqlExpr (Database.Esqueleto.Value Int))
     results <- select $ baseQuery True
-    return $ A.object [
+    (return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
                 ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7), (Database.Esqueleto.Value f8)) -> A.object [
@@ -105,7 +103,7 @@ getReceiptsReceiptIdR p1 = lift $ runDB $ do
                     ]
                 _ -> A.object []
             ) results)
-       ]
+       ])
 deleteReceiptsReceiptIdR :: forall master. (
     YesodAuthPersist master,
     AuthEntity master ~ User,

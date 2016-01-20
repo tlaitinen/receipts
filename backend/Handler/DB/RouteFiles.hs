@@ -87,49 +87,47 @@ getFilesR  = lift $ runDB $ do
         let fId' = f ^. FileId
         where_ (hasReadPerm (val authId) (f ^. FileId))
 
-        _ <- if limitOffsetOrder
-            then do 
-                offset 0
-                limit 10000
-                case defaultSortJson of 
-                    Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
-                            "contentType" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (f  ^.  FileContentType) ] 
-                                "DESC" -> orderBy [ desc (f  ^.  FileContentType) ] 
-                                _      -> return ()
-                            "size" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (f  ^.  FileSize) ] 
-                                "DESC" -> orderBy [ desc (f  ^.  FileSize) ] 
-                                _      -> return ()
-                            "previewOfFileId" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (f  ^.  FilePreviewOfFileId) ] 
-                                "DESC" -> orderBy [ desc (f  ^.  FilePreviewOfFileId) ] 
-                                _      -> return ()
-                            "name" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (f  ^.  FileName) ] 
-                                "DESC" -> orderBy [ desc (f  ^.  FileName) ] 
-                                _      -> return ()
-                            "insertionTime" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (f  ^.  FileInsertionTime) ] 
-                                "DESC" -> orderBy [ desc (f  ^.  FileInsertionTime) ] 
-                                _      -> return ()
-                            "insertedByUserId" -> case (FS.s_direction sjm) of 
-                                "ASC"  -> orderBy [ asc (f  ^.  FileInsertedByUserId) ] 
-                                "DESC" -> orderBy [ desc (f  ^.  FileInsertedByUserId) ] 
-                                _      -> return ()
-                
-                            _ -> return ()
-                        ) xs
-                    Nothing -> orderBy [ asc (f ^. FileName) ]
+        _ <- when limitOffsetOrder $ do
+            offset 0
+            limit 10000
+            case defaultSortJson of 
+                Just xs -> mapM_ (\sjm -> case FS.s_field sjm of
+                        "contentType" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (f  ^.  FileContentType) ] 
+                            "DESC" -> orderBy [ desc (f  ^.  FileContentType) ] 
+                            _      -> return ()
+                        "size" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (f  ^.  FileSize) ] 
+                            "DESC" -> orderBy [ desc (f  ^.  FileSize) ] 
+                            _      -> return ()
+                        "previewOfFileId" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (f  ^.  FilePreviewOfFileId) ] 
+                            "DESC" -> orderBy [ desc (f  ^.  FilePreviewOfFileId) ] 
+                            _      -> return ()
+                        "name" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (f  ^.  FileName) ] 
+                            "DESC" -> orderBy [ desc (f  ^.  FileName) ] 
+                            _      -> return ()
+                        "insertionTime" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (f  ^.  FileInsertionTime) ] 
+                            "DESC" -> orderBy [ desc (f  ^.  FileInsertionTime) ] 
+                            _      -> return ()
+                        "insertedByUserId" -> case (FS.s_direction sjm) of 
+                            "ASC"  -> orderBy [ asc (f  ^.  FileInsertedByUserId) ] 
+                            "DESC" -> orderBy [ desc (f  ^.  FileInsertedByUserId) ] 
+                            _      -> return ()
+            
+                        _ -> return ()
+                    ) xs
+                Nothing -> orderBy [ asc (f ^. FileName) ]
 
-                case defaultOffset of
-                    Just o -> offset o
-                    Nothing -> return ()
-                case defaultLimit of
-                    Just l -> limit (min 10000 l)
-                    Nothing -> return ()
+            case defaultOffset of
+                Just o -> offset o
+                Nothing -> return ()
+            case defaultLimit of
+                Just l -> limit (min 10000 l)
+                Nothing -> return ()
                  
-            else return ()
         case defaultFilterJson of 
             Just xs -> mapM_ (\fjm -> case FS.f_field fjm of
                 "id" -> case (FS.f_value fjm >>= PP.fromPathPiece)  of 
@@ -166,7 +164,7 @@ getFilesR  = lift $ runDB $ do
         case FS.getDefaultFilter filterParam_query defaultFilterJson "query" of
             Just localParam -> do 
                 
-                where_ $ (f ^. FileName) `ilike` (((val "%")) ++. (((val (localParam :: Text))) ++. ((val "%"))))
+                where_ $ (f ^. FileName) `ilike` ((((val "%")) ++. ((val (localParam :: Text)))) ++. ((val "%")))
             Nothing -> return ()
         case FS.getDefaultFilter filterParam_contentType defaultFilterJson "contentType" of
             Just localParam -> do 
@@ -190,7 +188,7 @@ getFilesR  = lift $ runDB $ do
         orderBy []
         return $ (countRows' :: SqlExpr (Database.Esqueleto.Value Int))
     results <- select $ baseQuery True
-    return $ A.object [
+    (return $ A.object [
         "totalCount" .= ((\(Database.Esqueleto.Value v) -> (v::Int)) (head count)),
         "result" .= (toJSON $ map (\row -> case row of
                 ((Database.Esqueleto.Value f1), (Database.Esqueleto.Value f2), (Database.Esqueleto.Value f3), (Database.Esqueleto.Value f4), (Database.Esqueleto.Value f5), (Database.Esqueleto.Value f6), (Database.Esqueleto.Value f7)) -> A.object [
@@ -204,4 +202,4 @@ getFilesR  = lift $ runDB $ do
                     ]
                 _ -> A.object []
             ) results)
-       ]
+       ])
