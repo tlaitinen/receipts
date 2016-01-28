@@ -122,11 +122,11 @@ postMailgunR = do
                                         userGroupContentFileContentId = Just $ previewFileId
                                     }
                         let previewName = joinPath [ appUploadDir settings, show (fromSqlKey previewFileId) ]
-                        success <- liftIO $ UF.convert "jpeg" tmpName previewName
+                        success <- liftIO $ UF.convert "jpeg" (I.fileContentType fi) tmpName previewName
                         when success $ do
                             size <- liftIO $ withFile previewName ReadMode hFileSize
                             update previewFileId [ FileSize =. fromIntegral size ]
-                            success <- liftIO $ UF.convert "pdf" tmpName name
+                            success <- liftIO $ UF.convert "pdf" (I.fileContentType fi) tmpName name
                             liftIO $ removeFile tmpName
                             update fileId [ FileContentType =. "application/pdf" ]
                     else liftIO $ renameFile tmpName name                                

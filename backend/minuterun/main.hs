@@ -40,7 +40,7 @@ import qualified Data.Text.Encoding as TE
 import Network.Mime (MimeMap, defaultMimeMap)
 
 invMimeMap :: Map.Map Text Text
-invMimeMap = Map.fromList $ [ (TE.decodeUtf8 v,k) | (k,v) <- Map.toList defaultMimeMap ] 
+invMimeMap = Map.fromList $ [ (TE.decodeUtf8 v,k) | (k,v) <- Map.toList defaultMimeMap ]  ++ [ ("text/html", "html") ]
 
 ctypeToExt :: Text -> Text
 ctypeToExt ctype = Map.findWithDefault "unknown" ctype invMimeMap

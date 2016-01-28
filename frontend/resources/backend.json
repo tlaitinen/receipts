@@ -10,7 +10,38 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "query",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "contentType",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "contentTypeList",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "hideDeleted",
+                            "type": null
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "File",
@@ -67,7 +98,18 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "File",
@@ -219,7 +261,23 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "hideDeleted",
+                            "type": null
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "UserGroupContent",
@@ -247,7 +305,33 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "query",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "musicPieceIdList",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "hideDeleted",
+                            "type": null
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "UserGroup",
@@ -371,7 +455,33 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "query",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "userGroupId",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "userIdList",
+                            "type": null
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "UserGroupItem",
@@ -478,7 +588,33 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "query",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "userGroupId",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "hideDeleted",
+                            "type": null
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "User",
@@ -597,7 +733,18 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "User",
@@ -749,7 +896,18 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "Version",
@@ -830,7 +988,33 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "query",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "hideDeleted",
+                            "type": null
+                        },
+                        {
+                            "references": null,
+                            "name": "processPeriodId",
+                            "type": null
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "Receipt",
@@ -929,7 +1113,18 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "Receipt",
@@ -1046,7 +1241,23 @@
             ],
             "handlers": [
                 {
-                    "inputs": [],
+                    "inputs": [
+                        {
+                            "references": null,
+                            "name": "start",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "limit",
+                            "type": "integer"
+                        },
+                        {
+                            "references": null,
+                            "name": "query",
+                            "type": null
+                        }
+                    ],
                     "outputs": [
                         {
                             "references": "ProcessPeriod",

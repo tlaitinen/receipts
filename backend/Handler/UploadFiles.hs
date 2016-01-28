@@ -10,7 +10,7 @@ import Database.Persist.Sql
 import Handler.Utils
 import qualified Settings
 import System.FilePath
-import System.Directory (renameFile, removeFile, doesFileExist)
+import System.Directory (renameFile, removeFile, doesFileExist, copyFile)
 import Data.Text
 import System.IO
 import Handler.DB
@@ -18,23 +18,30 @@ import Data.Aeson
 import System.Process
 import System.Exit
 import Network.HTTP.Types (status500, status403)
-import System.IO.Temp (openTempFile)
+import System.IO.Temp (openTempFile, withSystemTempFile)
 
 
-convert :: String -> FilePath -> FilePath -> IO Bool
-convert ext src dst = do
-    let tmpDst = dst ++ "." ++ ext
-
-    callProcess "convert" $ args ++ [src, tmpDst]
-    multiplePages <- doesFileExist $ dst++ "-0." ++ ext
-    if multiplePages
-        then renameFile (dst ++ "-0." ++ ext) dst
-        else renameFile tmpDst dst
-    resultExists <- doesFileExist dst
-            
-    return resultExists
+convert :: String -> Text -> FilePath -> FilePath -> IO Bool
+convert ext ctype src dst = do 
+    Import.print (ext, ctype, src, dst)
+    run
+    doesFileExist dst
     where
-        args
+        run 
+            | ctype `elem` [ "application/pdf" ] || "image/" `T.isPrefixOf` ctype = do
+                callProcess "convert" $ convertArgs ++ [src, tmpDst]
+                multiplePages <- doesFileExist $ dst++ "-0." ++ ext
+                if multiplePages
+                    then renameFile (dst ++ "-0." ++ ext) dst
+                    else renameFile tmpDst dst
+            | ctype == "text/html"= withSystemTempFile "receipts.html" $ \fp h -> do
+                hClose h
+                copyFile src fp 
+                callProcess (if ext == "pdf" then "wkhtmltopdf" else "wkhtmltoimage") [ fp, tmpDst ]
+                renameFile tmpDst dst
+            | otherwise = return ()
+        tmpDst = dst ++ "." ++ ext
+        convertArgs
             | ext == "pdf" = ["-density", "150", "-compress", "jpeg", "-quality", "80" ]
             | ext == "jpeg" = [ "-quality", "80" ]
             | otherwise = []
@@ -89,7 +96,7 @@ postUploadFilesR = do
                                 userGroupContentFileContentId = Just $ previewFileId
                             }
                 let previewName = joinPath [ appUploadDir settings, show (fromSqlKey previewFileId) ]
-                success <- liftIO $ convert "jpeg" name previewName
+                success <- liftIO $ convert "jpeg" (I.fileContentType fi) name previewName
                 when (not success) $ sendResponseStatus status500 $ object [
                         "result" .= ("failed" :: Text)
                     ]
@@ -101,7 +108,7 @@ postUploadFilesR = do
             else return []
         if (("convert", "pdf") `elem` params)
             then do
-                success <- liftIO $ convert "pdf" name name'
+                success <- liftIO $ convert "pdf" (I.fileContentType fi) name name'
                 when (not success) $ sendResponseStatus status500 $ object [
                         "result" .= ("failed" :: Text)
                     ]
