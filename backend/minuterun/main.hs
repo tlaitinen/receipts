@@ -14,7 +14,7 @@ import qualified Data.ByteString.Lazy as LB
 import Text.Printf
 import Data.Maybe (fromMaybe)
 import qualified Database.Persist
-import Import hiding (Option, (==.), (>=.), isNothing, update, (=.), on, joinPath, fileSize) 
+import Import hiding (Option, (==.), (>=.), isNothing, update, (=.), on, joinPath, fileSize, fileContentType) 
 import System.Console.GetOpt
 import Control.Monad.Trans.Resource (runResourceT, ResourceT)
 import Database.Persist.Postgresql          (createPostgresqlPool, pgConnStr,
@@ -36,8 +36,14 @@ import Codec.Archive.Zip
 import Network.Mail.SMTP (sendMail)
 import Network.Mail.Mime
 import System.FilePath
+import qualified Data.Text.Encoding as TE
+import Network.Mime (MimeMap, defaultMimeMap)
 
+invMimeMap :: Map.Map Text Text
+invMimeMap = Map.fromList $ [ (TE.decodeUtf8 v,k) | (k,v) <- Map.toList defaultMimeMap ] 
 
+ctypeToExt :: Text -> Text
+ctypeToExt ctype = Map.findWithDefault "unknown" ctype invMimeMap
 
 minuteRun :: AppSettings -> SqlPersistT (LoggingT IO) ()
 minuteRun settings = do
@@ -53,12 +59,12 @@ packReceipts settings receipts = pack emptyArchive receipts
         mtime = floor . utcTimeToPOSIXSeconds . fileInsertionTime
         shortenName x = T.pack $ take (appMaxZipEntryLength settings - 11) (T.unpack x)
 
-        receiptPath r = T.unpack $ T.concat [ shortenName (receiptName r), 
-                                                "_", T.pack $ show $ receiptAmount r, ".pdf" ]
+        receiptPath r f = T.unpack $ T.concat [ shortenName (receiptName r), 
+                                                "_", T.pack $ show $ receiptAmount r, ".", ctypeToExt (fileContentType f) ]
         pack a rs'@((Entity _ r, Entity fId f):rs) 
             | fits a f = do
                 contents <- LB.readFile $ path fId
-                let entry = toEntry (receiptPath r) (mtime f) contents
+                let entry = toEntry (receiptPath r f) (mtime f) contents
                 pack (addEntryToArchive entry a) rs
             | otherwise = do
                 a' <- pack emptyArchive rs'
