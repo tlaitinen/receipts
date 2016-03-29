@@ -1,0 +1,56 @@
+body, html {
+    width: 100%;
+    height:100%;
+}
+.loginWindow {
+    background: transparent !important;
+}
+
+.site-title {
+    font-family: 'Open Sans', sans-serif !important;
+    font-size: 30px !important;
+    width:80%;
+    left:10%;
+    position: absolute;
+     text-shadow: 1px 1px #000000;
+    line-height: 100% !important;
+    font-weight: normal !important;
+    top:10%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-align:center;
+    color: #3892d3;
+}
+body {
+    background-image: url('../resources/background.jpg') !important; 
+    background-repeat: no-repeat !important;
+    background-position : center top !important;
+    background-size : cover !important;
+    background-attachment: fixed !important;
+}
+#loadingMask {
+    background-image: url('../resources/loading.gif');
+    background-position: center center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 100%;
+
+}
+div.fileUpload {
+    width:100%;
+    height:5em;
+    border: 1px dashed #000;
+    text-align:center;
+    color: #aaa;
+}
+div.fileUpload.hover {
+    color: #f00;
+    border-color: #f00;
+    border-style: solid;
+    box-shadow: inset 0 3px 4px #888;
+}
+div.fileUpload input {
+    position: relative;
+    text-align: right;
+    z-index: 2;
+}
