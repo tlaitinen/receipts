@@ -38,6 +38,17 @@ import Network.Mail.Mime
 import System.FilePath
 import qualified Data.Text.Encoding as TE
 import Network.Mime (MimeMap, defaultMimeMap)
+import Handler.Encoding (toAscii)
+import Data.Char (isAlphaNum, isSpace)
+
+toSafeChar :: Char -> Char
+toSafeChar ch
+    | isAlphaNum ch = ch
+    | isSpace ch = ' '
+    | ch `elem` [ '_','-','.'] = ch
+    | otherwise = ' '
+toSafeText :: Text -> Text
+toSafeText = T.map toSafeChar
 
 invMimeMap :: Map.Map Text Text
 invMimeMap = Map.fromList $ [ (TE.decodeUtf8 v,k) | (k,v) <- Map.toList defaultMimeMap ]  ++ [ ("text/html", "html") ]
@@ -59,7 +70,7 @@ packReceipts settings receipts = pack emptyArchive receipts
         mtime = floor . utcTimeToPOSIXSeconds . fileInsertionTime
         shortenName x = T.pack $ take (appMaxZipEntryLength settings - 11) (T.unpack x)
 
-        receiptPath r f = T.unpack $ T.concat [ shortenName (receiptName r), 
+        receiptPath r f = T.unpack $ T.concat [ toSafeText $ shortenName (receiptName r), 
                                                 "_", T.pack $ show $ receiptAmount r, ".", ctypeToExt (fileContentType f) ]
         pack a rs'@((Entity _ r, Entity fId f):rs) 
             | fits a f = do
@@ -93,7 +104,7 @@ processQueuedPeriods settings = do
         let firstDay = processPeriodFirstDay pp
             lastDay  = processPeriodLastDay pp
         forM_ (zip [1..] archives) $ \(part,a) -> liftIO $ withSystemTempDirectory "receipts" $ \tempDir -> do
-            let tmpPath = tempDir </> (concat [ T.unpack $ userGroupName ug, "_", show firstDay, "_", show lastDay, ".zip"])
+            let tmpPath = tempDir </> (concat [ T.unpack $ toSafeText $ toAscii $ userGroupName ug, "_", show firstDay, "_", show lastDay, ".zip"])
                 app = (error "" :: App)
                 partInfo = T.pack $ if length archives > 1 then concat ["(", show part, " / ", show $ length archives, ")" ] else ""
                 msg = if processPeriodProcessed pp == False

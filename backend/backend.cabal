@@ -64,6 +64,7 @@ library
         Handler.DB.RouteProcessperiods
         Handler.DB.RouteProcessperiodsProcessPeriod
         Handler.DB.RouteSettings
+        Handler.Encoding
     build-depends:
         unordered-containers -any,
         recaptcha-wreq -any,
@@ -134,7 +135,8 @@ library
         zlib -any,
         process -any,
         async -any,
-        network -any
+        network -any,
+        iconv -any
     cpp-options: -DFromJSON_Day -DToJSON_Day
     extensions: TemplateHaskell QuasiQuotes OverloadedStrings
                 NoImplicitPrelude CPP MultiParamTypeClasses TypeFamilies GADTs
